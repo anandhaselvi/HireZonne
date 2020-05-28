@@ -1,0 +1,3 @@
+com\hiring\service\config\ServiceConfiguration.class
+com\hiring\service\config\ServiceInitializer.class
+com\hiring\service\controller\UserServiceController.class
