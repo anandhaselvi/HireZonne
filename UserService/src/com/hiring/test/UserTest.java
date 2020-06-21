@@ -17,11 +17,9 @@ class UserTest {
 	users.put("lastname","natarajan");
 	users.put("username","selvi244");
 	users.put("password","selvi123");
-	users.put("email","anandhaselvi@gmail.com");
-	users.put("reportingperson","1");
-	users.put("roleId","1");
+	users.put("role","vendor");
 	users.put("updatedby","1");
-	//System.out.println(user.insertUser(users));
+	System.out.println(user.insertUser(users));
 	//System.out.println(user.updateUser(users));
 	//user.isexistuser(users);
 	System.out.println(user.userList());

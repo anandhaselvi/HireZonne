@@ -47,37 +47,42 @@ public class UserDaoImpl implements UserDao {
 		return 0;
 		}
 	
+	@SuppressWarnings("static-access")
 	@Override
     public JSONObject insertUser(JSONObject json) {
 		JSONObject jsonObj = new JSONObject();
+		Connection con = null;
+        PreparedStatement preparedstmt = null;
+
 		int roleid =isexistuser(json);
 		if(roleid>0) {
 			jsonObj.put("msg","already exists");
 		}
 		else {
 		String sql = "INSERT INTO users(firstname,lastname,password,updatedon,username,role) VALUES(?,?,?,?,?,?)";
-		Connection con = null;
-        PreparedStatement preparedstmt = null;
 		try {
 			con = conn.getConnection();
-			preparedstmt = con.prepareStatement(sql);
+			preparedstmt = con.prepareStatement(sql,preparedstmt.RETURN_GENERATED_KEYS);
 			preparedstmt.setString(1, json.getString("firstname"));
 			preparedstmt.setString(2, json.getString("lastname"));
-			preparedstmt.setString(3,getMD5EncryptedValue(json.getString("password")));
+			preparedstmt.setString(3, getMD5EncryptedValue(json.getString("password")));
 			preparedstmt.setString(4, LocalDateTime.now().toString());
 			preparedstmt.setString(5, json.getString("username"));
-			preparedstmt.setString(6,json.getString("role"));
+			preparedstmt.setString(6, json.getString("role"));
 			preparedstmt.executeUpdate();
+			ResultSet rs = preparedstmt.getGeneratedKeys();
+            if(rs != null && rs.next()){
+            	jsonObj.put("userId", rs.getInt(1));
+            }
 			jsonObj.put("msg","user Created successfully");
 		} catch (SQLException e) {
 			logger.error(e);
 			jsonObj.put("msg","user Creation failed");
-	}
+	     }
 		finally {
 			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
 			 if (preparedstmt != null) { try {preparedstmt.close();} catch (SQLException e){logger.error(e);}}
-			
-		}
+		  }
 		}
 		return jsonObj;
 	}
@@ -107,7 +112,6 @@ public class UserDaoImpl implements UserDao {
 				use.put("username",rs.getString("username"));
 				use.put("email",rs.getString("email"));
 				use.put("roleId",rs.getInt("roleid"));
-				
 				jsonArr.put(use);
 			}
 			json.put("userList", jsonArr);
@@ -156,6 +160,8 @@ public class UserDaoImpl implements UserDao {
       ResultSet rs=null;
       int counter=0;
 		try {
+			int userId =isexistuser(json);
+			if(userId>0) {
 			String sql = "SELECT username,password FROM users WHERE username=? AND password=?";
 			con = conn.getConnection();
 			preparedstmt = con.prepareStatement(sql);
@@ -164,9 +170,13 @@ public class UserDaoImpl implements UserDao {
 			rs=preparedstmt.executeQuery();
 			if (rs.next()) {
 				counter=1;
-			}else {
+			}
+			else  {
 				counter=2;
 			}
+		 }else {
+			 counter=3;
+		 }
 		} catch (Exception e) {
 			logger.error(e);
 		}

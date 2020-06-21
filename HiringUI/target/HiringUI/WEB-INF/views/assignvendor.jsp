@@ -6,146 +6,62 @@
 
   
 <jsp:include page="/WEB-INF/views/header.jsp" />
- 
 
-        <div class="site-section bg-light">
 
-      <div class="container my-5">
-          <h3>Vendor</h3>
-		 <div class="row"> <div class="col-md-8 form-group"><button type="button" class="btn btn-success">Assign</button>
-		  <button type="button" class="btn btn-success">UnAssign</button></div>
-		  <div class="col-md-4"> <div class="input-group">
-    <input type="text" class="form-control" placeholder="Enter Email">
-    <div class="input-group-append">
-      <button class="btn btn-success" type="button">
-        Invite
-      </button>
-    </div>
-  </div>
-</div></div>
-            <div class="table-responsive mt-4">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                  <thead>
-                    <tr>
-					         <th><input type="checkbox" name="select_all" value="1" id="example-select-all"></th>
+<div class="site-section bg-light">
+	<div class="container my-5">
+		<h3>Vendor</h3>
+		<div class="row">
+			
+			<div class="offset-md-8 col-md-4">
+				<div class="input-group">
+					<input type="email" class="form-control" id="emailid" placeholder="Enter Email">
+					<div class="input-group-append">
+						<button class="btn btn-success" type="button" onclick="sendmail()">Invite</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="table-responsive mt-4">
+			<table class="table table-bordered" id="dataTable" width="100%"
+				cellspacing="0">
+				<thead>
+					<tr>
+						<th><input type="checkbox" name="select_all" value="1"
+							id="example-select-all"></th>
+						<th>VendorName</th>
+						<th>EmailId</th>
+						<th>Location</th>
 
-                      <th>Vendor</th>
-                      <th>Description</th>
-                      <th>isprimary</th>
-                      <th>Customer</th>
-					  <th>ReportingTo</th>
+					</tr>
+				</thead>
+				<tbody>
+					<c:forEach var="assignvendor" items="${ven}">
+						<tr>
+							<td><input type="checkbox" value="${assignvendor.vendorId}"></td>
+							<td>${assignvendor.vendorname}</td>
+							<td>${assignvendor.emailId}</td>
+							<td>Chennai</td>
+						</tr>
+					</c:forEach>
+				</tbody>
 
-                    </tr>
-                  </thead>
-                 
-                  <tbody>
-                    <tr>
-					<td><input type="checkbox" ></td>
-                      <td>Candidate1</td>
-                      <td>primaryvendor</td>
-                      <td>Java developer</td>
-                      <td>3years</td><td>primaryvendor</td>
-					  
-                    </tr>
-                   
-                   
-                   <tr>
-				   					<td><input type="checkbox" ></td>
-
-                      <td>Candidate2</td>
-                      <td>secondary vendor</td>
-                      <td>.Net developer</td>
-                      <td>2years</td><td>primaryvendor</td>
-                    </tr>
-                    <tr>
-										<td><input type="checkbox" ></td>
-
-                      <td>Candidate3</td>
-                      <td>Direct submission</td>
-                      <td>ReactJs</td>
-                      <td>2years</td><td>primaryvendor</td>
-                    </tr>
-                   <tr>
-				   					<td><input type="checkbox" ></td>
-
-                      <td>Candidate2</td>
-                      <td>secondary vendor</td>
-                      <td>.Net developer</td>
-                      <td>2years</td><td>primaryvendor</td>
-                    </tr>
-                    <tr>
-										<td><input type="checkbox" ></td>
-
-                      <td>Candidate2</td>
-                      <td>secondary vendor</td>
-                      <td>.Net developer</td>
-                      <td>2years</td><td>primaryvendor</td>
-                    </tr>
-                    <tr>
-										<td><input type="checkbox" ></td>
-
-                      <td>Candidate6</td>
-                      <td>secondary vendor</td>
-                      <td>UX/UI developer</td>
-                      <td>2years</td><td>primaryvendor</td>
-                    </tr>
-										<td><input type="checkbox" ></td>
-
-                      <td>Candidate2</td>
-                      <td>secondary vendor</td>
-                      <td>.Net developer</td>
-                      <td>2years</td><td>primaryvendor</td>
-                    </tr>
-                    <tr>
-										<td><input type="checkbox" ></td>
-
-                      <td>Candidate</td>
-                      <td>secondary vendor</td>
-                      <td>.Net developer</td>
-                      <td>2years</td><td>primaryvendor</td>
-                    </tr>
-                    <tr>
-										<td><input type="checkbox" ></td>
-
-                      <td>Candidate2</td>
-                      <td>secondary vendor</td>
-                      <td>.Net developer</td>
-                      <td>2years</td><td>primaryvendor</td>
-                    </tr>
-                  <tr>
-				  					<td><input type="checkbox" ></td>
-
-                      <td>Candidate2</td>
-                      <td>secondary vendor</td>
-                      <td>.Net developer</td>
-                      <td>2years</td><td>primaryvendor</td>
-                    </tr>
-                   
-                   
-                   
-                    <tr>
-										<td><input type="checkbox" ></td>
-
-                      <td>Donna Snider</td>
-                      <td>Customer Support</td>
-                      <td>New York</td>
-                      <td>27</td><td>primaryvendor</td>
-                    </tr>
-                  </tbody>
-                </table>
-          </div>
-
-   </div>
+			</table>
+		</div>
+		<div class="row">
+		<div class="col-md-8 form-group mt-4">
+				<button type="button" class="btn btn-success" id="assignvendor">Assign</button>
+				<button type="button" class="btn btn-success">UnAssign</button>
+			</div>
+		</div>
+	</div>
 </div>
-    
+
 
 <jsp:include page="/WEB-INF/views/footer.jsp" />
 
-  		<script>
-/*&$(document).ready(function() {
-    $('#dataTable').DataTable();
-    
-} );*/
+<script>
+
 $(document).ready(function (){
    var table = $('#dataTable').DataTable({
    'columnDefs': [{
@@ -180,26 +96,72 @@ $(document).ready(function (){
    });
 
    // Handle form submission event
-   $('#frm-example').on('submit', function(e){
+   $('#assignvendor').on('click', function(e){
       var form = this;
-
+	  var vendorId =[];
       // Iterate over all checkboxes in the table
       table.$('input[type="checkbox"]').each(function(){
          // If checkbox doesn't exist in DOM
-         if(!$.contains(document, this)){
+        // if(!$.contains(document, this)){
             // If checkbox is checked
             if(this.checked){
                // Create a hidden element
-               $(form).append(
-                  $('<input>')
-                     .attr('type', 'hidden')
-                     .attr('name', this.name)
-                     .val(this.value)
-               );
+			   console.log(this.value);
+			   vendorId.push(this.value);
+              
             }
-         }
+         //}
       });
+	  vendorUpdate(vendorId);
    });
-
+   toastr.options = {
+			  "closeButton": false,
+			  "positionClass": "toast-top-center",
+			  "preventDuplicates": false,
+			  "showDuration": "300",
+			  "hideDuration": "1000",
+			  "timeOut": "5000",
+			  "extendedTimeOut": "1000"
+			};
 });
+
+function sendmail(){
+ var emailid =	$('#emailid').val();
+	 $.ajax({
+		 url:"sendmail",
+		 type:"POST",
+		 async:false,
+		 data:{
+			emailid:emailid
+			 },
+		 success:function(response){
+	      var obj= JSON.parse(response);
+	       toastr.success(obj.msg);
+		 }
+	 });
+	}
+function vendorUpdate(vendorId) {
+          $.ajax({
+                  url:'vendorupdate',
+                  type:"POST",
+                  async:false,
+             	  data: {
+                  vendorId:vendorId.toString()
+                    },
+                    success: function(result) {
+                        var obj=JSON.parse(result);
+                    if(obj.msg == "Vendor Updated"){
+                      toastr.success("Vendor Updated Successfully");
+                   }
+                    if(obj.msg == "Vendor failed"){
+	                  toastr.error("Vendor Updation Failed");
+                  }
+                   $('#vendorname').val("");
+                   $('#description').val("");
+                   $('#customer').val("");
+                   $('#reportingto').val(""); 
+	             }
+             });
+	 
+       }
 </script>

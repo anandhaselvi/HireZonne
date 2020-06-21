@@ -19,7 +19,8 @@
 				<h2 align="center">HireZone</h2>
 			</div>
 			<div class="email-w3l"><span  style="font-size:20px;color:#E2E6E7;">FirstName</span>
-			<input type="hidden" value="<%= request.getParameter("id") %>" name="role">
+			<input type="hidden" id="customerId" name="customerId">
+			<input type="hidden" id="vendorId" name="vendorId">
 				<input class="email p-0 mt-3" type="text" name="firstname"  required="">
 			</div>
 			<div class="email-w3l"><span  style="font-size:20px;color:#E2E6E7;">LastName</span>
@@ -56,4 +57,15 @@
 
 
 </body>
+<script>
+$(document).ready(function(){
+	if(<%= request.getParameter("id") %> != null){
+		var customerId = <%= request.getParameter("id") %>;
+		$('#customerId').val(customerId);
+	}if(<%= request.getParameter("Vendor") %> != null){
+   var vendorId = <%= request.getParameter("Vendor") %>;
+		$('#vendorId').val(vendorId);
+	}
+      });      
+      </script>
 </html>

@@ -1,3 +1,7 @@
-D:\Projects\hiring\HiringService\src\main\java\com\hiring\service\config\ServiceConfiguration.java
-D:\Projects\hiring\HiringService\src\main\java\com\hiring\service\controller\UserServiceController.java
-D:\Projects\hiring\HiringService\src\main\java\com\hiring\service\config\ServiceInitializer.java
+D:\Projects\HireZonne\HiringService\src\main\java\com\hiring\service\controller\UserServiceController.java
+D:\Projects\HireZonne\HiringService\src\main\java\com\hiring\service\controller\CandidateServiceController.java
+D:\Projects\HireZonne\HiringService\src\main\java\com\hiring\service\config\ServiceInitializer.java
+D:\Projects\HireZonne\HiringService\src\main\java\com\hiring\service\controller\CustomerServiceContorller.java
+D:\Projects\HireZonne\HiringService\src\main\java\com\hiring\service\config\ServiceConfiguration.java
+D:\Projects\HireZonne\HiringService\src\main\java\com\hiring\service\controller\VendorServiceController.java
+D:\Projects\HireZonne\HiringService\src\main\java\com\hiring\service\controller\JobServiceController.java

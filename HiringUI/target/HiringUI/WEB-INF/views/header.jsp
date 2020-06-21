@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/aos.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/toastr.css">
 
   </head>
   <body>
@@ -48,7 +49,7 @@
           <div class="py-1">
             <div class="row align-items-center">
               <div class="col-2">
-                <h2 class="mb-0 site-logo"><a href="index.html"><strong class="font-weight-bold">HireZone</strong> </a></h2>
+                <h2 class="mb-0 site-logo"><strong class="font-weight-bold">HireZone</strong></h2>
               </div>
               <div class="col-10">
                 <nav class="site-navigation text-right" role="navigation">
@@ -62,7 +63,7 @@
 
                       <li><a href="reviewcandidate">Review Candidate</a></li>
                       <li>
-                        <a href="jobposting">Posting Job</a>
+                        <a href="createjobpost">Posting Job</a>
                       </li>
 					  </c:when>
 					  <c:when test="${fn:containsIgnoreCase(sessionScope.role, 'vendor')}">
@@ -73,7 +74,7 @@
                         <a href="reviewcandidate">Submit Profile</a>
                       </li>
 					   <li>
-                        <a href="jobposting">Posting Job</a>
+                        <a href="createjobpost">Posting Job</a>
                       </li>
 					  </c:when>
 					 
@@ -87,7 +88,7 @@
 					<div class="dropdown-menu dropdown-menu-right">
 							<a href="passwordchange" class="dropdown-item">Reset Password</a>
 							<div class="dropdown-divider"></div>
-							<a href="login"class="dropdown-item">Logout</a>
+							<a href="login?id=customer" class="dropdown-item">Logout</a>
 					 </div>
 			         </li>
                     </ul>

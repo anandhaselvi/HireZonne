@@ -18,6 +18,7 @@
 			<div class="form-info">
 				<h2 align="center">HireZone</h2>
 			</div>
+			<span id="message" class="text-danger font-weight-bold" style="color:#E2E6E7;">${msg}</span>
 			<div class="email-w3l">
 				<span class="i1"><i class="icon-envelope-o" aria-hidden="true"></i></span>
 				<input class="email" type="email" name="username" placeholder="Email" required="">
@@ -44,12 +45,9 @@
 				<input class="login" type="submit" value="login">
 			</div>
 			<div class="col-sm-12 my-4">
-			<span style="color:#E2E6E7;">Don't have an account?</span>&nbsp;&nbsp;<a href="register?id='<%= request.getParameter("id") %>'" class="text-info">Register here</a>
+			<span style="color:#E2E6E7;">Don't have an account?</span>&nbsp;&nbsp;<a href="register" class="text-info">Register here</a>
 			</div>
 			<input type="hidden" value="<%= request.getParameter("id") %>">
-
-		<span id="message" class="text-danger font-weight-bold" style="color:#E2E6E7;">${msg}</span>
-			
 		</form>
 	</div>
 </div>

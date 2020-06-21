@@ -41,3 +41,5 @@
   <script src="${pageContext.request.contextPath}/resources/assets/js/dataTables.bootstrap4.min.js"></script>
   <script src="${pageContext.request.contextPath}/resources/assets/js/main.js"></script>
   <script src="${pageContext.request.contextPath}/resources/assets/js/aos.js"></script>
+  <script src="${pageContext.request.contextPath}/resources/assets/js/toastr.js"></script>
+  
