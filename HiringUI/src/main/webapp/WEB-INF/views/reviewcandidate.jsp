@@ -14,19 +14,21 @@
 		                    <tr>
 							  <th><input type="checkbox" name="select_all" value="1" id="example-select-all"></th>
 		                      <th>Candidate</th>
+		                      <c:if test="${fn:containsIgnoreCase(sessionScope.role, 'vendor')}">
 		                      <th>Vendor</th>
-		                      <th>Profile </th>
-		                      <th>EmailId</th>
+		                      </c:if>
+		                      <th>Created Date </th>
 		                   </tr>
 		                </thead>		
 		               <tbody>
 		                  <c:forEach var="reviewcandidate" items="${candidate}">
 							<tr>
-						<td><input type="checkbox" value="${reviewcandidate.submittedto},${reviewcandidate.jobPostingId},${reviewcandidate.candidateid},${reviewcandidate.submittedType}"></td>	
+						<td><input type="checkbox" value="${reviewcandidate.submittedto},${reviewcandidate.jobPostingId},${reviewcandidate.candidateid},${reviewcandidate.submittedType},${reviewcandidate.candidateJobPostId}"></td>	
 						<td><a href="#">${reviewcandidate.name}</a></td>
+						 <c:if test="${fn:containsIgnoreCase(sessionScope.role, 'vendor')}">
 						<td>${reviewcandidate.vendorname}</td>
-						<td>${reviewcandidate.profile}</td>
-						<td>${reviewcandidate.emailid}</td>
+						</c:if>
+						<td>${reviewcandidate.createdon}</td>
 						</tr>
 						</c:forEach>
 					 </tbody>    
@@ -35,7 +37,7 @@
 				<div class="row">
 				 <div class="col-md-8 form-group">
 				  		<c:if test="${fn:containsIgnoreCase(sessionScope.role, 'vendor')}">
-							<button type="button" class="btn btn-success" id="submitprofile">SubmitProfile</button>
+							<button type="button" class="btn btn-success" id="submitprofile">Submitprofile</button>
 						</c:if>
 						</div>
 				</div>
@@ -93,7 +95,7 @@ $(document).ready(function (){
 			   
 			  // vendorId.push(this.value);
 			   Ids= this.value.split(',');
-               candidateProfileSubmit(Ids[0],Ids[1],Ids[2]);
+               candidateProfileSubmit(Ids[0],Ids[1],Ids[2],Ids[3],Ids[4]);
             }
          //}
       });
@@ -101,19 +103,26 @@ $(document).ready(function (){
    });
   });
   
-function candidateProfileSubmit(submittedto,jobPostingId,candidateId) {
+function candidateProfileSubmit(submittedto,jobpostingId,candidateId,submitType,candidateJobPostId) {
           $.ajax({
                   url:'candidateProfileSubmit',
                   type:"POST",
                   async:false,
              	  data: {
 					  submittedto:submittedto,
-					  jobPostingId:jobPostingId,
-					  candidateId:candidateId
+					  candidateId:candidateId,
+					  jobpostingId:jobpostingId,
+					  submitType:submitType,
+					  candidateJobPostId:candidateJobPostId
                     },
                     success: function(result) {
                         var obj=JSON.parse(result);
+						if(obj.msg == "Profile Submitted"){
+							toastr.success("Profile Submitted"); 
+						}
+						location.reload();
 	             }
+
              });
     }
 </script>

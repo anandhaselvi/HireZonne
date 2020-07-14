@@ -55,14 +55,17 @@ public class CandidateController {
 			for (int i = 0; i < jsonArr.length(); i++) {
 				JSONObject jsonObj = jsonArr.getJSONObject(i);
 				CandidateModel  candimodel = new CandidateModel();
-				candimodel.setCandidateid(jsonObj.getString("candidateId"));
-				candimodel.setName(jsonObj.getString("name"));
-				candimodel.setProfile(jsonObj.getString("profile"));
-				candimodel.setEmailid(jsonObj.getString("emailid"));
-				candimodel.setSubmittedto(jsonObj.getInt("submittedto"));
-				candimodel.setJobPostingId(jsonObj.getString("jobPostingId"));
-				candimodel.setSubmittedType(jsonObj.getString("submittedType"));
-				candimodel.setResume(jsonObj.getString("resume"));
+				candimodel.setCandidateid(jsonObj.optString("candidateId"));
+				candimodel.setName(jsonObj.optString("name"));
+				candimodel.setProfile(jsonObj.optString("profile"));
+				candimodel.setEmailid(jsonObj.optString("emailid"));
+				candimodel.setSubmittedto(jsonObj.optString("submittedto"));
+				candimodel.setJobPostingId(jsonObj.optString("jobPostingId"));
+				candimodel.setSubmittedType(jsonObj.optString("submittedType"));
+				candimodel.setResume(jsonObj.optString("resume"));
+				candimodel.setCandidateJobPostId(jsonObj.optString("candidateJobPostId"));
+				candimodel.setVendorname(jsonObj.optString("vendorname"));
+				candimodel.setCreatedon(jsonObj.optString("createdon"));
 				candi.add(candimodel);
 			}
 			return new ModelAndView("reviewcandidate", "candidate", candi);
@@ -110,7 +113,7 @@ public class CandidateController {
 	@ResponseBody
 	public String updatevendor(@RequestParam("submittedto") String submittedto,@RequestParam("candidateId") String candidateId,
 			@RequestParam("jobpostingId") String jobpostingId, @RequestParam("submitType") String submitType,
-			HttpServletRequest request) {
+			@RequestParam("candidateJobPostId") String candidateJobPostId, HttpServletRequest request) {
 		RestTemplate restTemplate = new RestTemplate();
 		JSONObject json = new JSONObject();
 		HttpHeaders header = new HttpHeaders();
@@ -130,15 +133,15 @@ public class CandidateController {
 		updatejson.put("submittedto", submittedto);
 		updatejson.put("candidateId",candidateId);
 		updatejson.put("jobpostingId", jobpostingId);
-		updatejson.put("submitType", submitType);
+		updatejson.put("submittedType", submitType);
 		updatejson.put("createdby", userId);
+		updatejson.put("candidatejobpostId", candidateJobPostId);
 		HttpEntity<String> requestEntity = new HttpEntity<>(updatejson.toString(), header);
 		try {
 			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/candidateProfileSubmit", HttpMethod.POST,
 					requestEntity, String.class);
 			String jsonResonse = response.getBody();
 			json = new JSONObject(jsonResonse);
-			System.out.println("counter"+json);
 		} catch(Exception e){
 				e.printStackTrace(); 
 		 }

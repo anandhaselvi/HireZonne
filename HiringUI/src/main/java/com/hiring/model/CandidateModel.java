@@ -7,10 +7,12 @@ public class CandidateModel {
 	private String dob;
 	private String profile;
 	private String vendorname;
-	private int submittedto;
+	private String submittedto;
 	private String jobPostingId;
 	private String resume;
 	private String submittedType;
+	private String candidateJobPostId;
+	private String createdon;
 		
 	public String getSubmittedType() {
 		return submittedType;
@@ -24,10 +26,10 @@ public class CandidateModel {
 	public void setJobPostingId(String jobPostingId) {
 		this.jobPostingId = jobPostingId;
 	}
-	public int getSubmittedto() {
+	public String getSubmittedto() {
 		return submittedto;
 	}
-	public void setSubmittedto(int submittedto) {
+	public void setSubmittedto(String submittedto) {
 		this.submittedto = submittedto;
 	}
 	public String getCandidateid() {
@@ -72,5 +74,16 @@ public class CandidateModel {
 	public void setResume(String resume) {
 		this.resume = resume;
 	}
-
+	public void setCandidateJobPostId(String candidateJobPostId) {
+		this.candidateJobPostId = candidateJobPostId;
+	}
+	public String getCandidateJobPostId() {
+		return candidateJobPostId;
+	}
+	public String getCreatedon() {
+		return createdon;
+	}
+	public void setCreatedon(String createdon) {
+		this.createdon = createdon;
+	}
 }

@@ -101,6 +101,7 @@ public class UserController {
 		userJson.put("password", request.getParameter("password"));
 		userJson.put("firstname", request.getParameter("firstname"));
 		userJson.put("lastname", request.getParameter("lastname"));
+		userJson.put("createdby", request.getParameter("customerId"));
 		System.out.println("user"+userJson);
 		HttpEntity<String> requestEntity = new HttpEntity<>(userJson.toString(), header);
 		try {

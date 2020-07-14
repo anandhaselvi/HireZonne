@@ -58,13 +58,17 @@ public class CustomerController {
 				? request.getSession().getAttribute("token").toString(): "";
 		String username = request.getSession().getAttribute("username") != null
 				? request.getSession().getAttribute("username").toString(): "";
+		String userId = request.getSession().getAttribute("userId") != null
+						? request.getSession().getAttribute("userId").toString(): "";
+
 		header.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		header.set("Authorization", token);
 		header.set("username",username);
 		JSONObject customerJson = new JSONObject();
 		customerJson.put("companyname", companyname);
 		customerJson.put("description", description);
-		
+		customerJson.put("createdby", userId);
+
 		HttpEntity<String> requestEntity = new HttpEntity<>(customerJson.toString(), header);
 		try {
 			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/custinsert",
