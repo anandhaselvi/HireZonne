@@ -15,7 +15,7 @@ public interface UserDao {
 	
 	public JSONObject CheckRole(JSONObject jsonObj);
 	
-	public Boolean authorizeToken(String username, String token);
+	//public Boolean authorizeToken(String username, String token);
 	
 	public void validateToken(String username);
 	

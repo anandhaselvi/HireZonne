@@ -9,11 +9,9 @@
     <title>HireZone</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="shotcut icon" type="image/png" href="/favicon.png">
-
+	<link rel="shotcut icon" type="image/png" href="/favicon.png">
     <link href="https://fonts.googleapis.com/css?family=Amatic+SC:400,700|Work+Sans:300,400,700" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/fonts/icomoon/style.css">
-
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/magnific-popup.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/jquery-ui.css">
@@ -26,12 +24,10 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/toastr.css">
-
   </head>
   <body>
   
   <div class="site-wrap">
-
     <div class="site-mobile-menu">
       <div class="site-mobile-menu-header">
         <div class="site-mobile-menu-close mt-3">
@@ -86,8 +82,10 @@
 					  </div>
 					</a>
 					<div class="dropdown-menu dropdown-menu-right">
-							<a href="passwordchange" class="dropdown-item">Reset Password</a>
+							<div class="dropdown-item"><span class="font-weight-bold">${sessionScope.name}</span></div>
+							<div class="dropdown-item">${sessionScope.username}</div>
 							<div class="dropdown-divider"></div>
+							<a href="passwordchange" class="dropdown-item">Reset Password</a>
 							<a href="login?id=customer" class="dropdown-item">Logout</a>
 					 </div>
 			         </li>
@@ -95,11 +93,9 @@
                   </div>
                 </nav>
               </div>
-			 
             </div>
           </div>
         </div>
       </div>
     </div>
-  
-    </div>
+   </div>

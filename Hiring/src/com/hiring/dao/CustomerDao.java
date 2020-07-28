@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -49,7 +50,7 @@ public JSONObject insertCustomer(JSONObject json) {
 			jsonObj.put("msg","already exists");
 		}
 		else {
-		String sql = "INSERT INTO customer(companyname,description) VALUES(?,?)";
+		String sql = "INSERT INTO customer(companyname,description,userid,createdby,createdon) VALUES(?,?,?,?,?)";
 		Connection con = null;
         PreparedStatement preparedstmt = null;
 		try {
@@ -57,6 +58,9 @@ public JSONObject insertCustomer(JSONObject json) {
 			preparedstmt = con.prepareStatement(sql);
 			preparedstmt.setString(1, json.getString("companyname"));
 			preparedstmt.setString(2, json.getString("description"));
+			preparedstmt.setString(3, json.getString("userid"));
+			preparedstmt.setString(4, json.getString("userid"));
+			preparedstmt.setString(5, LocalDateTime.now().toString());
 			preparedstmt.executeUpdate();
 			jsonObj.put("msg","Cusotmer Created successfully");
 		} catch (SQLException e) {

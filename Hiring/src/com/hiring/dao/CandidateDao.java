@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
-
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,38 +25,44 @@ public class CandidateDao implements Candidate{
 	 Date d1;
 	 @Override
 	public JSONObject insertapplicant(JSONObject json) {
-	JSONObject jsonObject = new JSONObject();
-		int counter = Nameexists(json.getString("firstname")+" "+json.getString("lastname"));
-		if(counter>0){
-		jsonObject.put("msg","name already exists");
-		}
-		else{
-		Connection con =null;
-	    PreparedStatement preparedstmt = null;
-		try{
-			String sql="Insert into candidate(name,emailid,dob,profile,userid,resume)values(?,?,?,?,?,?)";
-		    con=conn.getConnection();
-		     preparedstmt = con.prepareStatement(sql);
-		     preparedstmt.setString(1,json.getString("firstname")+" "+json.getString("lastname"));
-		     preparedstmt.setString(2,json.getString("emailid"));
-		     d1 = dmy.parse(json.getString("dob"));
-		     preparedstmt.setString(3, ymd.format(d1));
-		     preparedstmt.setString(4,json.getString("profile"));
-		     preparedstmt.setString(5, json.getString("userId"));
-		     preparedstmt.setString(6, json.getString("resumeupload"));
-		     preparedstmt.executeUpdate();
-		     jsonObject.put("msg","candidate created successfully");
-		     }catch(SQLException| ParseException e) {
-				//logger.error(e);
-		    	 e.printStackTrace();
-				 jsonObject.put("msg","candidate creation failed");
-		     }
-			finally {
-				if (con != null) { try { con.close(); } catch (SQLException e){}}
-				if (preparedstmt != null) { try {preparedstmt.close();} catch (SQLException e){}}
-			  }	
+		JSONObject jsonObject = new JSONObject();
+		JSONArray jsonArr =json.getJSONArray("CandidateList");
+		for(int i=0;i<jsonArr.length();i++) {
+			JSONObject candidateJson = jsonArr.getJSONObject(i);
+		
+			int counter = Nameexists(candidateJson.getString("firstname")+" "+candidateJson.getString("lastname"));
+			if(counter>0){
+			jsonObject.put("msg","name already exists");
 			}
-		 return jsonObject;
+			else{
+			Connection con =null;
+		    PreparedStatement preparedstmt = null;
+			try{
+				 String sql="Insert into candidate(name,emailid,dob,profile,userid,resume,createdby,createdon)values(?,?,?,?,?,?,?,?)";
+				 con=conn.getConnection();
+			     preparedstmt = con.prepareStatement(sql);
+			     preparedstmt.setString(1,candidateJson.getString("firstname")+" "+candidateJson.getString("lastname"));
+			     preparedstmt.setString(2,candidateJson.getString("emailid"));
+			     d1 = dmy.parse(candidateJson.getString("dob"));
+			     preparedstmt.setString(3, ymd.format(d1));
+			     preparedstmt.setString(4,candidateJson.getString("profile"));
+			     preparedstmt.setString(5, candidateJson.getString("userId"));
+			     preparedstmt.setString(6, candidateJson.getString("resumeupload"));
+			     preparedstmt.setString(7, candidateJson.getString("userId"));
+			     preparedstmt.setString(8, LocalDateTime.now().toString());
+			     preparedstmt.executeUpdate();
+			     jsonObject.put("msg","candidate created successfully");
+			     }catch(SQLException| ParseException e) {
+					logger.error(e);
+					jsonObject.put("msg","candidate creation failed");
+			     }
+				finally {
+					if (con != null) { try { con.close(); } catch (SQLException e){}}
+					if (preparedstmt != null) { try {preparedstmt.close();} catch (SQLException e){}}
+				  }	
+				}
+		}
+			 return jsonObject;
 		}
 	 
 	public int Nameexists(String name){
@@ -181,15 +187,17 @@ public class CandidateDao implements Candidate{
 public JSONObject candidatemap(String userId) {
 	JSONObject json = new JSONObject();
 	JSONArray jsonarr = new JSONArray();
+	VendorDao vendordao = new VendorDao();
 	Connection con = null;
 	PreparedStatement preparedstmt = null;
 	ResultSet rs = null;
 	try {
 		String sql ="SELECT distinct candidate.name,candidate.emailid,candidate.dob,candidate.profile,"
-				+ "cjp.candidateId,cjp.jobpostingId,cjp.submittedto,submittedType,candidate.resume "
+				+ "cjp.candidateId,cjp.jobpostingId,cjp.submittedto,candidate.resume,cjp.id,vendorname,vendor.customer,"
+				+ "vendor.reportingto,cjp.createdon,cjp.createdby "
 				+ "from candidate INNER JOIN candidatejobpostingmapping cjp ON "
-				+ "candidate.userid= cjp.candidateId INNER JOIN candidatejobappliedhistory cih ON "
-				+ "cih.candidatejobpostId=cjp.id WHERE cjp.submittedto=?";
+				+ "candidate.userid= cjp.candidateId LEFT JOIN vendor ON cjp.submittedto = vendor.userId "
+				+ " WHERE cjp.submittedto=?";
 		con =conn.getConnection();
 		preparedstmt = con.prepareStatement(sql);
 		preparedstmt.setString(1, userId);
@@ -203,9 +211,17 @@ public JSONObject candidatemap(String userId) {
 			can.put("profile", rs.getString("profile"));
 			can.put("candidateId", rs.getString("candidateId"));
 			can.put("jobPostingId", rs.getString("jobpostingId"));
-			can.put("submittedto", rs.getInt("submittedto"));
-			can.put("submittedType", rs.getString("submittedType"));
+			if(rs.getString("customer") != null && rs.getString("reportingto") != null) {
+			can.put("submittedto", rs.getString("reportingto").equalsIgnoreCase("0") ? rs.getString("customer"):rs.getString("reportingto"));
+			can.put("submittedType", rs.getString("reportingto").equalsIgnoreCase("0") ? "Customer":"Primaryvendor");
+			}
 			can.put("resume", rs.getString("resume"));
+			can.put("candidateJobPostId", rs.getString("id"));
+			//can.put("vendorname", rs.getString("vendorname"));
+			can.put("createdon", rs.getString("createdon"));
+			JSONObject vendorjson = vendordao.getReportingto(rs.getString("createdby"));
+			can.put("vendorname",vendorjson.optString("reportingname"));
+
 			jsonarr.put(can);
 		}
 		json.put("mapList", jsonarr);
@@ -226,12 +242,14 @@ public JSONObject candidatemap(String userId) {
 		PreparedStatement preparedstmt = null;
 		try {
 			//String[] vendorIds = jsonObject.getString("vendorId").replaceAll(",$","").split(",");
-			String sql = "UPDATE candidatejobpostingmapping SET submittedto=? where candidateId=? AND jobpostingId =?";
+			String sql = "UPDATE candidatejobpostingmapping SET submittedto=?,createdby=?,createdon=? where candidateId=? AND jobpostingId =?";
 			con = conn.getConnection();
 			preparedstmt = con.prepareStatement(sql);
 			preparedstmt.setString(1, jsonObject.getString("submittedto"));
-			preparedstmt.setString(2, jsonObject.getString("candidateId"));
-			preparedstmt.setString(3, jsonObject.getString("jobpostingId"));
+			preparedstmt.setString(2,jsonObject.getString("createdby"));
+			preparedstmt.setString(3, LocalDateTime.now().toString());
+			preparedstmt.setString(4, jsonObject.getString("candidateId"));
+			preparedstmt.setString(5, jsonObject.getString("jobpostingId"));
 			preparedstmt.executeUpdate();
 			jobdao.candidatejobappliedhistory(jsonObject);
 		 	json.put("msg","Profile Submitted");
@@ -245,5 +263,41 @@ public JSONObject candidatemap(String userId) {
 			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
 		}
 	 }
+	
+//	public String read(InputStream file)
+//	{
+//		try
+//		{
+//			//FileInputStream file = new FileInputStream(new File("CandidateDetails.xlsx"));
+//			System.out.println("file"+file);
+//			//Create Workbook instance holding reference to .xlsx file
+//			XSSFWorkbook workbook = new XSSFWorkbook(file);
+//
+//			//Get first/desired sheet from the workbook
+//			XSSFSheet sheet = workbook.getSheetAt(0);
+//
+//			//Iterate through each rows one by one
+//			Iterator<Row> rowIterator = sheet.iterator();
+//			while (rowIterator.hasNext()) 
+//			{
+//				Row row = rowIterator.next();
+//				System.out.println(row);
+//				if(row.getRowNum()!=0) {
+//				//For each row, iterate through all the columns
+//					DataFormatter dataFormatter = new DataFormatter();
+//					System.out.println(dataFormatter.formatCellValue(row.getCell(0)));
+//					System.out.println(row.getCell(1));
+//					String dateofbirth = dataFormatter.formatCellValue(row.getCell(3));
+//					System.out.println(dateofbirth);
+//				}
+//			}
+//			//file.close();
+//		} 
+//		catch (Exception e) 
+//		{
+//			logger.error(e);
+//		}
+//		return null;
+//	}
 }
 

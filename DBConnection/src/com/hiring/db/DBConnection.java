@@ -19,12 +19,17 @@ public class DBConnection {
 		Properties prop = null;
 		File file = null;
 		try {
+			/* for local instance */
 			file = new File(System.getProperty("user.dir")+"/webapps/HiringService/config/application.properties");
 			Path path = Paths.get(System.getProperty("user.dir"));
+			
+			/* for Cloud deployment*/
+			//file = new File("opt/tomcat/webapps/HiringService/config/application.properties");
 			if(file.exists()) {
 			fs = new FileInputStream(file);
 			}
 			else if(!file.exists()) {
+				//file = new File("opt/tomcat/webapps/HiringService/config/application.properties");
 				file = new File(path.getParent()+"/HiringService/config/application.properties");
 				fs = new FileInputStream(file);
 			}

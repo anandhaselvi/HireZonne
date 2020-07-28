@@ -19,8 +19,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/fonts/flaticon/font/flaticon.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/aos.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/style.css">
-    <link href="${pageContext.request.contextPath}/resources/assets/css/dataTables.bootstrap4.min.css" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/assets/css/toastr.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/dataTables.bootstrap4.min.css" >
+	<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/assets/css/toastr.css" />
 	<script src="${pageContext.request.contextPath}/resources/assets/js/jquery-3.3.1.js"></script>
   </head>
   <body>
@@ -49,12 +49,13 @@
         </div>
       </div>
     </div>
+    </div>
     <div class="site-section bg-light ">
       <div class="container">
         <div class="row">
           <div class="col-md-12 mb-5 mb-md-0" id="candidateDetails">
 		   <div class="row p-5 bg-white">
-		   		  <h4>Register Your Profile</h4>
+		   		  <h4>Add your details to let the recruiter reach out to you</h4>
 			<div class="col-sm-12">
 				<div class="row">
 					<div class="col-sm-6">
@@ -234,16 +235,56 @@
 		</div>
 	</div>
 	<div class="col-sm-12">
-	         <button type="submit" class="btn btn-success">Submit</button>
+	<div class="row">
+	<div class="col-sm-4">
+		<div class="card tborder-light mb-3" style="max-width: 20rem;">
+		  <div class="card-header"><div class="radio">
+  <label><input type="radio" name="optradio">Gold</label>
+</div></div>
+		  <div class="card-body">
+			<h5 class="card-title">30 days</h5>
+			<p class="card-text">10 job post</p>
+		  </div>
+		</div>
+	</div>
+	
+	<div class="col-sm-4">
+		<div class="card tborder-light mb-3" style="max-width: 20rem;">
+		  <div class="card-header"><div class="radio">
+  <label><input type="radio" name="optradio">Platinum</label>
+</div></div>
+		  <div class="card-body">
+			<h5 class="card-title">90 days</h5>
+			<p class="card-text">100 job post</p>
+		  </div>
+		</div>
+	</div>
+	
+	<div class="col-sm-4">
+
+		<div class="card tborder-light mb-3" style="max-width: 20rem;">
+		  <div class="card-header"><div class="radio">
+  <label><input type="radio" name="optradio">Silver</label>
+</div></div>
+		  <div class="card-body">
+			<h5 class="card-title">14 days</h5>
+			<p class="card-text">5 job post</p>
+		  </div>
+		</div>
+	</div>
+	</div>
 
 	</div>
+	<div class="col-sm-12">
+	         <button type="submit" class="btn btn-success">Submit</button>
+	</div>
    </div>
-  </div>
- </div>
- 
-	</form>
+</form>
 </div>
 <!---candidate-->
+
+
+</div>
 </div>
 </div>
       <footer class="site-footer">

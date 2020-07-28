@@ -9,20 +9,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hiring.dao.Authorization;
 import com.hiring.dao.CustomerDao;
-import com.hiring.dao.UserDaoImpl;
-
-
-
 @RestController
 public class CustomerServiceContorller {
 	@RequestMapping(value = "/customer", method = RequestMethod.GET)
 	public ResponseEntity<String> Addcustomer(@RequestHeader HttpHeaders headers) {
-		UserDaoImpl user = new UserDaoImpl();
 		JSONObject jsonObject = new JSONObject();
 		String token = headers.getFirst("Authorization");
 		String username = headers.getFirst("username");
-		if(!user.authorizeToken(username, token)) {
+		if(!Authorization.authorizeToken(username, token)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
 			return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
@@ -31,13 +27,12 @@ public class CustomerServiceContorller {
 
 	@RequestMapping(value = "/custinsert", method = RequestMethod.POST)
 	public ResponseEntity<String> Addcustomer(@RequestHeader HttpHeaders headers, @RequestBody String request) {
-		UserDaoImpl user = new UserDaoImpl();
 		CustomerDao cus = new CustomerDao();
 		JSONObject jsonObject = new JSONObject();
 		String token = headers.getFirst("Authorization");
 		String username = headers.getFirst("username");
 		JSONObject json = new JSONObject(request);
-		if (!user.authorizeToken(username, token)) {
+		if (!Authorization.authorizeToken(username, token)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
 			jsonObject = cus.insertCustomer(json);
@@ -49,6 +44,7 @@ public class CustomerServiceContorller {
 		}
 	}
 }
+
 	/*@RequestMapping(value = "/update", method = RequestMethod.POST)
 	public ResponseEntity<String> updateCustomer(@RequestHeader HttpHeaders headers,@RequestBody String request) {
 		UserDaoImpl userDao = new UserDaoImpl();
@@ -66,6 +62,7 @@ public class CustomerServiceContorller {
 			return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
 		}
 	}
+	
 	@RequestMapping(value = "/getCustomer", method = RequestMethod.POST)
 	public ResponseEntity<String> getCustomer(@RequestHeader HttpHeaders headers, @RequestBody String request) {
 		

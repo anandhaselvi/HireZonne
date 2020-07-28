@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hiring.dao.Authorization;
 import com.hiring.dao.JobDao;
-import com.hiring.dao.UserDaoImpl;
 @RestController
 public class JobServiceController {
 	@RequestMapping(value="/findjob", method=RequestMethod.GET)
@@ -30,12 +30,11 @@ public class JobServiceController {
 	
 	@RequestMapping(value="/jobposting", method=RequestMethod.GET)
 	public ResponseEntity<String> jobposting(@RequestHeader HttpHeaders headers) {
-		UserDaoImpl user = new UserDaoImpl();
 		JobDao jobDao = new JobDao();
 		JSONObject jsonObject = new JSONObject();
 		String token = headers.getFirst("Authorization");
 		String username = headers.getFirst("username");
-		if (!user.authorizeToken(username, token)) {
+		if (!Authorization.authorizeToken(username, token)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
 			jsonObject = jobDao.jobList();
@@ -60,11 +59,10 @@ public class JobServiceController {
 	
 	@RequestMapping(value="/createjobpost", method=RequestMethod.GET)
 	public ResponseEntity<String> addJob(@RequestHeader HttpHeaders headers) {
-		UserDaoImpl user = new UserDaoImpl();
 		JSONObject jsonObject = new JSONObject();
 		String token = headers.getFirst("Authorization");
 		String username = headers.getFirst("username");
-		if(!user.authorizeToken(username, token)) {
+		if(!Authorization.authorizeToken(username, token)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
 			return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
@@ -74,12 +72,11 @@ public class JobServiceController {
 	@RequestMapping(value="/insertjob",method=RequestMethod.POST)
 	public ResponseEntity<String> addJob(@RequestHeader HttpHeaders headers,@RequestBody String request) {
 		JobDao job = new JobDao();
-		UserDaoImpl user = new UserDaoImpl();
 		JSONObject jsonObject = new JSONObject();
 		JSONObject json = new JSONObject(request);
 		String token = headers.getFirst("Authorization");
 		String username = headers.getFirst("username");
-		if(!user.authorizeToken(username, token)) {
+		if(!Authorization.authorizeToken(username, token)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
 			jsonObject = job.jobInsert(json);
@@ -110,10 +107,9 @@ public class JobServiceController {
 	public ResponseEntity<String> searchjobList(@RequestHeader HttpHeaders headers,@PathVariable String userId) {
 	    JobDao job = new JobDao();
 		JSONObject jsonObject = new JSONObject();
-		UserDaoImpl user = new UserDaoImpl();
 		String token = headers.getFirst("Authorization");
 		String username = headers.getFirst("username");
-		if(!user.authorizeToken(username, token)) {
+		if(!Authorization.authorizeToken(username, token)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		}else {
 			jsonObject = job.jobRefNoListing(userId);

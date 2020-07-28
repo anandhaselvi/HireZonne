@@ -30,9 +30,8 @@
 						<th><input type="checkbox" name="select_all" value="1"
 							id="example-select-all"></th>
 						<th>VendorName</th>
-						<th>EmailId</th>
 						<th>Location</th>
-
+						<th>EmailId</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -40,8 +39,8 @@
 						<tr>
 							<td><input type="checkbox" value="${assignvendor.vendorId}"></td>
 							<td>${assignvendor.vendorname}</td>
-							<td>${assignvendor.emailId}</td>
 							<td>Chennai</td>
+							<td>${assignvendor.emailId}</td>
 						</tr>
 					</c:forEach>
 				</tbody>
@@ -51,7 +50,7 @@
 		<div class="row">
 		<div class="col-md-8 form-group mt-4">
 				<button type="button" class="btn btn-success" id="assignvendor">Assign</button>
-				<button type="button" class="btn btn-success">UnAssign</button>
+				<button type="button" class="btn btn-success">Unassign</button>
 			</div>
 		</div>
 	</div>

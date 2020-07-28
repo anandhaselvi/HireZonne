@@ -26,8 +26,8 @@ public class JobDao implements Job {
 		PreparedStatement preparedstmt=null;
 		String jobId ="";
 		try {
-			String sql ="INSERT INTO job(title,jobtype,location,experiencerequired,workauthorization,jobdescription,updatedby,jobId)"
-					+ "VALUES(?,?,?,?,?,?,?,?)";
+			String sql ="INSERT INTO job(title,jobtype,location,experiencerequired,workauthorization,jobdescription,updatedby,jobId,updatedon)"
+					+ "VALUES(?,?,?,?,?,?,?,?,?)";
 			con =conn.getConnection();
 			preparedstmt=con.prepareStatement(sql);
 			preparedstmt.setString(1, json.getString("title"));
@@ -44,6 +44,7 @@ public class JobDao implements Job {
 				jobId = json.getString("jobId");
 			}
 			preparedstmt.setString(8, jobId);
+			preparedstmt.setString(9, LocalDateTime.now().toString());
 			preparedstmt.executeUpdate();
 			jsonobject.put("msg","Job created successfully");
 			//return json;
@@ -194,7 +195,7 @@ public class JobDao implements Job {
 		Connection con = null;
 		PreparedStatement preparedstmt= null;
 		try {
-			String sql = "INSERT INTO candidatejobpostingmapping(candidateid,jobpostingId,submittedto,vendorId,customerId)VALUES(?,?,?,?,?)";
+			String sql = "INSERT INTO candidatejobpostingmapping(candidateid,jobpostingId,submittedto,vendorId,customerId,createdby,createdon)VALUES(?,?,?,?,?,?,?)";
 			con=conn.getConnection();
 			preparedstmt = con.prepareStatement(sql,preparedstmt.RETURN_GENERATED_KEYS);
 			preparedstmt.setString(1, jsonobj.getString("candidateId"));
@@ -202,6 +203,8 @@ public class JobDao implements Job {
 			preparedstmt.setString(3, jsonobj.getString("submittedto"));
 			preparedstmt.setString(4, jsonobj.getString("vendorId"));
 			preparedstmt.setString(5, jsonobj.getString("customerId"));
+			preparedstmt.setString(6, jsonobj.getString("createdby"));
+			preparedstmt.setString(7, LocalDateTime.now().toString());
 			preparedstmt.executeUpdate();
 			ResultSet rs = preparedstmt.getGeneratedKeys();
             if(rs != null && rs.next()){

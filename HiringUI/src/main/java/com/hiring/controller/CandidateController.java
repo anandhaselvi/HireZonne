@@ -3,9 +3,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
@@ -21,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.ModelAndView;
 import com.hiring.model.CandidateModel;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
@@ -163,6 +170,81 @@ public class CandidateController {
 			}
 			return json.toString();
 	}
+	
+	 @RequestMapping(value = "/candidatebulkupload.htm", method = RequestMethod.POST)
+	 @ResponseBody
+	 public String candidatebulkupload(MultipartRequest multipartFileRequest,HttpServletRequest request){
+	        RestTemplate restTemplate = new RestTemplate();
+	        JSONObject json = new JSONObject();
+	        JSONObject jsonObject = new JSONObject();
+	        JSONArray  rowjsonArr = new JSONArray();
+	        HttpHeaders header = new HttpHeaders();
+			String token = request.getSession().getAttribute("token") != null
+					? request.getSession().getAttribute("token").toString()
+					: "";
+			String username = request.getSession().getAttribute("username") != null
+					? request.getSession().getAttribute("username").toString()
+					: "";
+			header.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+			header.set("Authorization", token);
+			header.set("username",username);
+	         try {
+	 	        MultipartFile multipartfile = multipartFileRequest.getFile("file");
+				XSSFWorkbook workbook = new XSSFWorkbook(multipartfile.getInputStream());
+				XSSFSheet sheet = workbook.getSheetAt(0);
+				int rows = sheet.getPhysicalNumberOfRows();
+				System.out.println(rows);
+				Iterator<Row> rowIterator = sheet.iterator();
+				while (rowIterator.hasNext()) 
+				{
+					Row row = rowIterator.next();
+					JSONObject rowJson = new JSONObject();
+					System.out.println("row"+row);
+				    System.out.println(row.getRowNum());
+				    
+					if(row.getRowNum()!=0) {
+					//For each row, iterate through all the columns
+						DataFormatter dataFormatter = new DataFormatter();
+						//rowJson.put("name", row.getCell(0));
+						//rowJson.put("dateofBirth", row.getCell(1));
+						System.out.println(row.getCell(1));
+						String dateofbirth = dataFormatter.formatCellValue(row.getCell(3));
+						System.out.println(dateofbirth);
+						//Check the cell type and format accordingly
+						 rowJson.put("candidateId", row.getCell(0));
+                         rowJson.put("firstname", row.getCell(1).toString());
+                         rowJson.put("lastname", row.getCell(2).toString());
+                         rowJson.put("emailid", row.getCell(3).toString());
+                         String dob = dataFormatter.formatCellValue(row.getCell(4));
+                         System.out.println(dob);
+                         rowJson.put("dob",dob);
+                         rowJson.put("profile",row.getCell(5).toString());
+                         rowJson.put("resumeupload", row.getCell(6).toString());
+                         rowJson.put("userId", row.getCell(7));
+                         rowJson.put("createdby", row.getCell(8));
+                        // rowJson.put("createdon", row.getCell(9).toString());
+//						DataFormatter dataFormatter = new DataFormatter();
+//						rowJson.put("name", row.getCell(0));
+//						rowJson.put("dateofBirth", row.getCell(1).getDateCellValue());
+//						System.out.println(row.getCell(1).getDateCellValue());
+//						String dateofbirth = dataFormatter.formatCellValue(row.getCell(3));
+//						System.out.println(dateofbirth);
+						rowjsonArr.put(rowJson);
+					}
+				}
+				jsonObject.put("CandidateList", rowjsonArr);
+				System.out.println("json"+jsonObject);
+				HttpEntity<String> requestEntity = new HttpEntity<String>(jsonObject.toString(),header);
+		        ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/candidatebulkupload",
+		                HttpMethod.POST, requestEntity, String.class);
+		        String jsonResonse = response.getBody();
+		        json = new JSONObject(jsonResonse);
+		        System.out.println("counter"+json);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}		   
+	        return json.toString();
+	    }
 }
 
 /*@RequestMapping(value = "/updatecandidate", method = RequestMethod.POST)

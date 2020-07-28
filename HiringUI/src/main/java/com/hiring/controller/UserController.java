@@ -1,11 +1,8 @@
 package com.hiring.controller;
-
 import java.sql.SQLException;
 import java.util.Arrays;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +31,14 @@ public class UserController {
 	public String register() {
 		return "register";
 	}
+	@RequestMapping(value = "/adminApproval", method = RequestMethod.GET)
+	public String adminApproval() {
+		return "adminApproval";
+	}
+	@RequestMapping(value = "/bulkupload", method = RequestMethod.GET)
+	public String bulkupload() {
+		return "bulkupload";
+	}
 	
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	@ResponseBody
@@ -54,6 +59,7 @@ public class UserController {
 			session.setAttribute("role", json.optString("role"));
 			session.setAttribute("username",json.optString("username"));
 			session.setAttribute("token", json.optString("token"));
+			session.setAttribute("name", json.optString("name"));
 			session.setMaxInactiveInterval(900);
 			if (json.optString("msg").equalsIgnoreCase("Incorrect username and password")){
 				mv.addObject("msg", json.optString("msg"));
@@ -89,7 +95,7 @@ public class UserController {
 		JSONObject userJson = new JSONObject();
 		userJson.put("username", request.getParameter("username"));
 		System.out.println(request.getParameter("customerId"));
-		if(!request.getParameter("customerId").isEmpty()) {
+		if(request.getParameter("customerId") != null) {
 			userJson.put("customerId", request.getParameter("customerId"));
 			userJson.put("role", "vendor");
 			System.out.println("vendorId"+request.getParameter("vendorId"));

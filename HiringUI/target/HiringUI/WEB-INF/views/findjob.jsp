@@ -349,7 +349,7 @@ function setId(updatedby,jobpostingId,submitType){
 	if(submitType.toLowerCase() =="customer"){
 			 $('#customerId').val(updatedby);
 	}else{
-	 $('#vendorId').val(vendorId);
+	 $('#vendorId').val(updatedby);
 	}
 	 $('#jobpostingId').val(jobpostingId);
 	 $('#submitType').val(submitType);

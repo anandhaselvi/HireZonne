@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/mysql-connector-java-8.0.17.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Admin/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar" sourcepath="C:/Users/Admin/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17-sources.jar">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
@@ -13,5 +12,6 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/mysql-connector-java-8.0.17.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

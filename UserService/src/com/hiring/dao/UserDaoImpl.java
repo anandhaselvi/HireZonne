@@ -195,7 +195,7 @@ public class UserDaoImpl implements UserDao {
         PreparedStatement preparedstmt = null;
         ResultSet rs= null;
 		try {
-			String sql = "SELECT users.id,users.role,users.username,token FROM users"
+			String sql = "SELECT CONCAT(firstname,'',lastname)as name,users.id,users.role,users.username,token FROM users"
 					+ " INNER JOIN sessiontoken st ON st.username = users.username WHERE users.username=?";
 			con = conn.getConnection();
 			preparedstmt = con.prepareStatement(sql);
@@ -206,6 +206,7 @@ public class UserDaoImpl implements UserDao {
 				json.put("role",rs.getString("role")); 
 				json.put("username", rs.getString("username"));
 				json.put("token",rs.getString("token"));
+				json.put("name", rs.getString("name"));
 			}
 		}catch (SQLException e) {
 			logger.error(e);
@@ -244,34 +245,34 @@ public class UserDaoImpl implements UserDao {
 			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
 		}
 	}
-	@Override
-	public Boolean authorizeToken(String username,String token) {
-		Connection con =null;
-		PreparedStatement preparedstmt = null;
-		ResultSet rs= null;
-		try {
-			String sql ="SELECT token FROM sessiontoken WHERE username=?";
-			con=conn.getConnection();
-			preparedstmt=con.prepareStatement(sql);
-			preparedstmt.setString(1, username);
-			rs= preparedstmt.executeQuery();
-			if(rs.next()) {
-				if(rs.getString("token").equalsIgnoreCase(token)) {
-					return true;
-				}
-				else {
-					return false;
-				}
-			}
-		}catch(SQLException e) {
-			logger.error(e);
-		}finally {
-			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
-			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
-		}
-		return false;
-	}
-	
+//	@Override
+//	public Boolean authorizeToken(String username,String token) {
+//		Connection con =null;
+//		PreparedStatement preparedstmt = null;
+//		ResultSet rs= null;
+//		try {
+//			String sql ="SELECT token FROM sessiontoken WHERE username=?";
+//			con=conn.getConnection();
+//			preparedstmt=con.prepareStatement(sql);
+//			preparedstmt.setString(1, username);
+//			rs= preparedstmt.executeQuery();
+//			if(rs.next()) {
+//				if(rs.getString("token").equalsIgnoreCase(token)) {
+//					return true;
+//				}
+//				else {
+//					return false;
+//				}
+//			}
+//		}catch(SQLException e) {
+//			logger.error(e);
+//		}finally {
+//			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
+//			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
+//		}
+//		return false;
+//	}
+//	
 	
 	@Override
 	public JSONObject passwordchange(JSONObject json) {

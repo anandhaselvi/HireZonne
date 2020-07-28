@@ -4,6 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,8 +26,8 @@ public JSONObject insertvendor(JSONObject json) {
 		PreparedStatement preparedstmt = null;
       	try {
 			//String sql = "Insert into vendor(vendorname,description,isprimary,customer,reportingto)values(?,?,?,?,?)";
-			String sql = "Insert into vendor(vendorname,isprimary,customer,reportingto,userId)values(?,?,?,?,?)";
-      		con = conn.getConnection();
+			String sql = "Insert into vendor(vendorname,isprimary,customer,reportingto,userId,createdon,createdby)values(?,?,?,?,?,?,?)";
+     		con = conn.getConnection();
 			preparedstmt = con.prepareStatement(sql);
 			//preparedstmt.setString(1, json.getString("vendorId"));
 			preparedstmt.setString(1,json.getString("firstname") +" "+json.getString("lastname"));
@@ -34,6 +36,8 @@ public JSONObject insertvendor(JSONObject json) {
 			preparedstmt.setString(3,json.getString("customerId"));
 			preparedstmt.setString(4,json.optString("reportingto").isEmpty()?"0":json.optString("reportingto"));
 			preparedstmt.setString(5,json.getString("userId"));
+			preparedstmt.setString(6,LocalDateTime.now().toString());
+			preparedstmt.setString(7,json.getString("userId"));
 			preparedstmt.executeUpdate();
 			jsonObject.put("msg", "vendor added successfully");
 		} catch (SQLException e) {
