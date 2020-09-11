@@ -14,7 +14,7 @@
 		
 			</div>
             <div class="table-responsive mt-4">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <table class="table table-bordered" id="dataTable">
                   <thead>
                     <tr>
 					   <th><input type="checkbox" name="select_all" value="1" id="example-select-all"></th>
@@ -22,7 +22,6 @@
                       <th>Location</th>
                       <th>JobType</th>
                       <th>ExperienceRequired</th>
-                      <th>KeySkillsRequired</th>
                       <th>JobDescription</th>
                     </tr>
                   </thead>
@@ -34,7 +33,6 @@
 						<td>${job.location}</td>
 						<td>${job.jobtype}</td>
 						<td>${job.experiencerequired}</td>
-						<td>${job.keyskillsrequired}</td>
 						<td>${job.jobbdescription}</td>
 						</tr>
 						</c:forEach>

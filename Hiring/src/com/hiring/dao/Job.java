@@ -13,7 +13,7 @@ public interface Job {
 	
 	public JSONObject jobList();
 
-	JSONObject candidatemapping(JSONObject jsonobj);
+	JSONObject candidateMapping(JSONObject jsonobj);
 	
 	
 

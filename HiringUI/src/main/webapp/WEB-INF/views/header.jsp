@@ -55,25 +55,63 @@
 					<c:choose>
 					<c:when test="${fn:containsIgnoreCase(sessionScope.role, 'customer')}">
 
-					   <li><a href="assignvendor">Assign Vendors</a></li>
+					   <li><a data-toggle="dropdown" href="#" >Vendors</a>
+					   <div class="dropdown-menu">
+							<div class="dropdown-item"><a href="assignvendor">Assign Vendor</a></div>
+							<div class="dropdown-item"><a href="bulkupload">Bulk Upload</a></div>
 
-                      <li><a href="reviewcandidate">Review Candidate</a></li>
+						</div>
+					   </li>
+
+                      <li><a data-toggle="dropdown" href="#" >Candidates</a>
+					  <div class="dropdown-menu">
+							<div class="dropdown-item"><a href="reviewcandidate">Review Candidate</a></div>
+							<div class="dropdown-item"><a href="candidatelisting">CandidateList</a></div>
+						</div>
+					  </li>
                       <li>
-                        <a href="createjobpost">Posting Job</a>
+                        <a data-toggle="dropdown" href="#"  href="createjobpost">Job</a>
+						<div class="dropdown-menu">
+							<div class="dropdown-item"><a href="createjobpost">Create JobPost</a></div>
+					 </div>
+                      </li>
+					  </c:when>
+					   <c:when test="${fn:containsIgnoreCase(sessionScope.status, 'Unapproved')}">
+						<li>
+                        <a data-toggle="dropdown" href="#"  href="createjobpost">Job</a>
+						<div class="dropdown-menu">
+							<div class="dropdown-item"><a href="createjobpost">Create JobPost</a></div>
+						</div>
                       </li>
 					  </c:when>
 					  <c:when test="${fn:containsIgnoreCase(sessionScope.role, 'vendor')}">
+					   <li><a data-toggle="dropdown" href="#" >Vendors</a>
+					   <div class="dropdown-menu">
+							<div class="dropdown-item"><a href="assignvendor">Assign Vendor</a></div>
+						</div>
+					   </li>
+					   <li><a data-toggle="dropdown" href="#" >Candidates</a>
+					  <div class="dropdown-menu">
+							<div class="dropdown-item"><a href="reviewcandidate">Submit Profile</a></div>
+							<div class="dropdown-item"><a href="candidatelisting">CandidateList</a></div>
+						</div>
+					  </li>
 					  <li>
-                        <a href="assignvendor">Assign Vendors</a>
-                      </li>
-					  <li>
-                        <a href="reviewcandidate">Submit Profile</a>
-                      </li>
-					   <li>
-                        <a href="createjobpost">Posting Job</a>
+                        <a data-toggle="dropdown" href="#"  href="createjobpost">Job</a>
+						<div class="dropdown-menu">
+							<div class="dropdown-item"><a href="createjobpost">Create JobPost</a></div>
+						</div>
                       </li>
 					  </c:when>
-					 
+					 <c:when test="${fn:containsIgnoreCase(sessionScope.role, 'siteadmin')}">
+
+					   <li><a data-toggle="dropdown" href="#" >Vendors</a>
+					   <div class="dropdown-menu">
+							<div class="dropdown-item"><a href="adminApproval">VendorList</a></div>
+						</div>
+					   </li>
+					  </c:when>
+
 					</c:choose>
 					  <li class="header-nav-item dropdown">
 					  <a class="header-nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">

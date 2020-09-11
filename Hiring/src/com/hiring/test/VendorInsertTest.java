@@ -17,6 +17,6 @@ class VendorInsertTest {
 		ven.put("customerId","1");
 		ven.put("userId", "1");
 		ven.put("reportingperson", "null");
-		System.out.println(vendor.insertvendor(ven));
+		System.out.println(vendor.insertVendor(ven));
 	}
 	}

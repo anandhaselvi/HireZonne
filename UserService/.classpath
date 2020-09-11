@@ -36,5 +36,15 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Admin/Downloads/jar_files (3)/poi-ooxml-3.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Admin/.m2/repository/org/apache/poi/poi/3.9/poi-3.9.jar" sourcepath="C:/Users/Admin/.m2/repository/org/apache/poi/poi/3.9/poi-3.9-sources.jar">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="org.eclipse.jst.component.archivename" value="poi-3.9.jar"/>
+			<attribute name="maven.groupId" value="org.apache.poi"/>
+			<attribute name="maven.artifactId" value="poi"/>
+			<attribute name="maven.version" value="3.9"/>
+			<attribute name="maven.scope" value="compile"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

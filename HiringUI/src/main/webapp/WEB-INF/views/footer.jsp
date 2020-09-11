@@ -42,4 +42,6 @@
   <script src="${pageContext.request.contextPath}/resources/assets/js/main.js"></script>
   <script src="${pageContext.request.contextPath}/resources/assets/js/aos.js"></script>
   <script src="${pageContext.request.contextPath}/resources/assets/js/toastr.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/resources/assets/js/jquery.validate.min.js"></script>
+    
   

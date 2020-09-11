@@ -23,8 +23,7 @@
 			</div>
 		</div>
 		<div class="table-responsive mt-4">
-			<table class="table table-bordered" id="dataTable" width="100%"
-				cellspacing="0">
+			<table class="table table-bordered" id="dataTable">
 				<thead>
 					<tr>
 						<th><input type="checkbox" name="select_all" value="1"
@@ -135,7 +134,12 @@ function sendmail(){
 			 },
 		 success:function(response){
 	      var obj= JSON.parse(response);
-	       toastr.success(obj.msg);
+	      if(obj.msg == "Sent message successfully"){
+              toastr.success("Sent message successfully");
+          }
+	      if(obj.msg == "Message sent failed"){
+              toastr.error("Messaage sent Failed");
+          }
 		 }
 	 });
 	}

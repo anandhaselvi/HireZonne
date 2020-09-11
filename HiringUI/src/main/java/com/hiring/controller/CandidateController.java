@@ -8,7 +8,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -35,25 +35,20 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class CandidateController {
-	@RequestMapping(value = "/reviewcandidate", method = RequestMethod.GET)
+	private static Logger logger = Logger.getLogger(CandidateController.class);
+	
+	
+	@RequestMapping(value = "/reviewcandidate",method=RequestMethod.GET)
 	public ModelAndView candidateList(HttpServletRequest request){
 		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders header = new HttpHeaders();
-		String token = request.getSession().getAttribute("token") != null
-				? request.getSession().getAttribute("token").toString()
-				: "";
-		String username = request.getSession().getAttribute("username") != null
-				? request.getSession().getAttribute("username").toString()
-				: "";
-		String userId = request.getSession().getAttribute("userId") != null
-						? request.getSession().getAttribute("userId").toString()
-						: "";
+		HttpHeaders header = Utilities.userAuthentication(request);
 		header.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		header.set("Authorization", token);
-		header.set("username", username);
-		HttpEntity<String> requestEntity = new HttpEntity<>("", header);
+		String strUserId = request.getSession().getAttribute("userId") != null
+				? request.getSession().getAttribute("userId").toString()
+				: "";
+		HttpEntity<String> requestEntity = new HttpEntity<String>("", header);
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/reviewcandidate/"+userId+"",
+			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/reviewcandidate/"+strUserId+"",
 					HttpMethod.GET, requestEntity, String.class);
 			String mapList = response.getBody();
 			JSONObject json = new JSONObject(mapList);
@@ -65,7 +60,7 @@ public class CandidateController {
 				candimodel.setCandidateid(jsonObj.optString("candidateId"));
 				candimodel.setName(jsonObj.optString("name"));
 				candimodel.setProfile(jsonObj.optString("profile"));
-				candimodel.setEmailid(jsonObj.optString("emailid"));
+				candimodel.setEmailid(jsonObj.optString("emailId"));
 				candimodel.setSubmittedto(jsonObj.optString("submittedto"));
 				candimodel.setJobPostingId(jsonObj.optString("jobPostingId"));
 				candimodel.setSubmittedType(jsonObj.optString("submittedType"));
@@ -77,23 +72,63 @@ public class CandidateController {
 			}
 			return new ModelAndView("reviewcandidate", "candidate", candi);
 		} catch(Exception e){
-			e.printStackTrace();
+			logger.error(e);
 		}
 		return new ModelAndView();
 	}
 	
+	@RequestMapping(value = "/bulkupload",method=RequestMethod.GET)
+	public String bulkupload(){
+		return "bulkupload";
+	}
 	
-	@RequestMapping(value = "/addcandidate.htm", method = RequestMethod.POST)
+	@RequestMapping(value = "/candidatelisting",method=RequestMethod.GET)
+	public ModelAndView jobposting(HttpServletRequest request) {
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders header = Utilities.userAuthentication(request);
+		HttpEntity<String> requestEntity = new HttpEntity<String>("", header);
+		try {
+				ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/candidatelisting",
+						HttpMethod.GET, requestEntity, String.class);
+				String candidateList = response.getBody();
+				JSONObject json = new JSONObject(candidateList);
+				JSONArray jsonArr = json.getJSONArray("candidateList");
+				List<CandidateModel> can = new ArrayList<CandidateModel>();
+				for (int i = 0; i < jsonArr.length(); i++) {
+					JSONObject jsonObj = jsonArr.getJSONObject(i);
+					CandidateModel  canModel = new CandidateModel();
+					canModel.setName(jsonObj.optString("name"));
+					canModel.setEmailid(jsonObj.optString("emailid"));
+					canModel.setDob(jsonObj.optString("dob"));
+					canModel.setProfile(jsonObj.optString("profile"));
+					can.add(canModel);
+				}
+				return new ModelAndView("candidatelisting", "candidateListing", can);
+			} catch (Exception ex) {
+				logger.error(ex);
+			}
+			return new ModelAndView();
+		}
+
+	
+	@RequestMapping(value = "/candidate",method=RequestMethod.GET)
+	public String candidate() {
+		return "candidate";
+	}
+	
+	@RequestMapping(value = "/addcandidate.htm",method=RequestMethod.POST)
 	@ResponseBody
 	public String insert(MultipartRequest multipartFileRequest,HttpServletRequest request){
 		RestTemplate restTemplate = new RestTemplate();
-		JSONObject json = new JSONObject();								
+		JSONObject json = new JSONObject();	
+		JSONObject jsonObject = new JSONObject();
 		HttpHeaders header = new HttpHeaders();
 		MultipartFile multipartfile = multipartFileRequest.getFile("file");
 		String encodedString;
 		try {
 			encodedString = Base64.getEncoder().encodeToString(multipartfile.getBytes());
 			JSONObject candidateJson = new JSONObject();
+			JSONArray jsonArr= new JSONArray();
 			candidateJson.put("firstname", request.getParameter("firstname"));
 			candidateJson.put("lastname", request.getParameter("lastname"));
 			candidateJson.put("password", request.getParameter("password"));
@@ -103,209 +138,136 @@ public class CandidateController {
 			candidateJson.put("dob", request.getParameter("dob"));
 			candidateJson.put("profile", request.getParameter("profile"));
 			candidateJson.put("resumeupload", encodedString);
-			System.out.println(candidateJson);
-			HttpEntity<String> requestEntity = new HttpEntity<>(candidateJson.toString(), header);
+			jsonArr.put(candidateJson);
+			jsonObject.put("candidateList",jsonArr);
+			HttpEntity<String> requestEntity = new HttpEntity<String>(jsonObject.toString(), header);
 			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/addcandidate",
 					HttpMethod.POST, requestEntity, String.class);
 			String jsonResonse = response.getBody();
 			json = new JSONObject(jsonResonse);
-			System.out.println("counter"+json);
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (IOException e) {
+			logger.error(e);
 		}
 		return json.toString();
 	}
 	
-	@RequestMapping(value = "/candidateProfileSubmit", method = RequestMethod.POST)
+	
+	@RequestMapping(value = "/candidateProfileSubmit",method=RequestMethod.POST)
 	@ResponseBody
 	public String updatevendor(@RequestParam("submittedto") String submittedto,@RequestParam("candidateId") String candidateId,
 			@RequestParam("jobpostingId") String jobpostingId, @RequestParam("submitType") String submitType,
 			@RequestParam("candidateJobPostId") String candidateJobPostId, HttpServletRequest request) {
 		RestTemplate restTemplate = new RestTemplate();
 		JSONObject json = new JSONObject();
-		HttpHeaders header = new HttpHeaders();
-		String token = request.getSession().getAttribute("token") != null
-				? request.getSession().getAttribute("token").toString()
-				: "";
-		String username = request.getSession().getAttribute("username") != null
-				? request.getSession().getAttribute("username").toString()
-				: "";
-		String userId = request.getSession().getAttribute("userId") != null
+		HttpHeaders header = Utilities.userAuthentication(request);
+		String createdBy = request.getSession().getAttribute("userId") != null
 				? request.getSession().getAttribute("userId").toString()
 				: "";
-		header.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		header.set("Authorization", token);
-		header.set("username",username);
+
 		JSONObject updatejson = new JSONObject();
 		updatejson.put("submittedto", submittedto);
 		updatejson.put("candidateId",candidateId);
 		updatejson.put("jobpostingId", jobpostingId);
 		updatejson.put("submittedType", submitType);
-		updatejson.put("createdby", userId);
+		updatejson.put("createdby", createdBy);
 		updatejson.put("candidatejobpostId", candidateJobPostId);
-		HttpEntity<String> requestEntity = new HttpEntity<>(updatejson.toString(), header);
+		HttpEntity<String> requestEntity = new HttpEntity<String>(updatejson.toString(), header);
 		try {
 			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/candidateProfileSubmit", HttpMethod.POST,
 					requestEntity, String.class);
 			String jsonResonse = response.getBody();
 			json = new JSONObject(jsonResonse);
 		} catch(Exception e){
-				e.printStackTrace(); 
+			logger.error(e);
 		 }
 		return json.toString();
 	}
-	@RequestMapping(value = "/fetchresume", method = RequestMethod.GET)
+	
+	@RequestMapping(value = "/fetchresume",method=RequestMethod.GET)
 	@ResponseBody
 	public String fetchlogo(HttpServletRequest request) {
 			RestTemplate restTemplate = new RestTemplate();
 			JSONObject json = new JSONObject();
 			HttpHeaders header = new HttpHeaders();
 			try {
-			HttpEntity<String> requestEntity = new HttpEntity<>("", header);
+			HttpEntity<String> requestEntity = new HttpEntity<String>("", header);
 			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/fetchresume", HttpMethod.GET,
 					requestEntity, String.class);
 			String jsonResonse = response.getBody();
 			json = new JSONObject(jsonResonse);
 			}catch (Exception ex) {
+				logger.error(ex);
 			}
 			return json.toString();
 	}
 	
-	 @RequestMapping(value = "/candidatebulkupload.htm", method = RequestMethod.POST)
+	 @RequestMapping(value = "/candidatebulkupload.htm",method = RequestMethod.POST)
 	 @ResponseBody
 	 public String candidatebulkupload(MultipartRequest multipartFileRequest,HttpServletRequest request){
 	        RestTemplate restTemplate = new RestTemplate();
 	        JSONObject json = new JSONObject();
 	        JSONObject jsonObject = new JSONObject();
 	        JSONArray  rowjsonArr = new JSONArray();
-	        HttpHeaders header = new HttpHeaders();
-			String token = request.getSession().getAttribute("token") != null
-					? request.getSession().getAttribute("token").toString()
-					: "";
-			String username = request.getSession().getAttribute("username") != null
-					? request.getSession().getAttribute("username").toString()
-					: "";
-			header.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-			header.set("Authorization", token);
-			header.set("username",username);
+			HttpHeaders header = Utilities.userAuthentication(request);
 	         try {
+	        	System.out.println("candidatebulkupload");
 	 	        MultipartFile multipartfile = multipartFileRequest.getFile("file");
 				XSSFWorkbook workbook = new XSSFWorkbook(multipartfile.getInputStream());
 				XSSFSheet sheet = workbook.getSheetAt(0);
-				int rows = sheet.getPhysicalNumberOfRows();
-				System.out.println(rows);
 				Iterator<Row> rowIterator = sheet.iterator();
 				while (rowIterator.hasNext()) 
 				{
 					Row row = rowIterator.next();
 					JSONObject rowJson = new JSONObject();
-					System.out.println("row"+row);
-				    System.out.println(row.getRowNum());
-				    
 					if(row.getRowNum()!=0) {
-					//For each row, iterate through all the columns
-						DataFormatter dataFormatter = new DataFormatter();
-						//rowJson.put("name", row.getCell(0));
-						//rowJson.put("dateofBirth", row.getCell(1));
-						System.out.println(row.getCell(1));
-						String dateofbirth = dataFormatter.formatCellValue(row.getCell(3));
-						System.out.println(dateofbirth);
+						//For each row, iterate through all the columns
 						//Check the cell type and format accordingly
-						 rowJson.put("candidateId", row.getCell(0));
-                         rowJson.put("firstname", row.getCell(1).toString());
-                         rowJson.put("lastname", row.getCell(2).toString());
-                         rowJson.put("emailid", row.getCell(3).toString());
-                         String dob = dataFormatter.formatCellValue(row.getCell(4));
-                         System.out.println(dob);
-                         rowJson.put("dob",dob);
-                         rowJson.put("profile",row.getCell(5).toString());
-                         rowJson.put("resumeupload", row.getCell(6).toString());
-                         rowJson.put("userId", row.getCell(7));
-                         rowJson.put("createdby", row.getCell(8));
-                        // rowJson.put("createdon", row.getCell(9).toString());
-//						DataFormatter dataFormatter = new DataFormatter();
-//						rowJson.put("name", row.getCell(0));
-//						rowJson.put("dateofBirth", row.getCell(1).getDateCellValue());
-//						System.out.println(row.getCell(1).getDateCellValue());
-//						String dateofbirth = dataFormatter.formatCellValue(row.getCell(3));
-//						System.out.println(dateofbirth);
-						rowjsonArr.put(rowJson);
+                         rowJson.put("firstname", row.getCell(0).toString());
+                         rowJson.put("lastname", row.getCell(1).toString());
+                         rowJson.put("emailid", row.getCell(2).toString());
+                         rowJson.put("dob",row.getCell(3).toString());
+                         rowJson.put("profile",row.getCell(4).toString());
+                         rowJson.put("resumeupload", row.getCell(5).toString());
+                         rowJson.put("username", row.getCell(2).toString());
+                         rowJson.put("role", "candidate");
+						 rowjsonArr.put(rowJson);
 					}
 				}
-				jsonObject.put("CandidateList", rowjsonArr);
-				System.out.println("json"+jsonObject);
+				jsonObject.put("candidateList", rowjsonArr);
+	        	System.out.println("candidatebulkupload"+jsonObject);
 				HttpEntity<String> requestEntity = new HttpEntity<String>(jsonObject.toString(),header);
 		        ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/candidatebulkupload",
 		                HttpMethod.POST, requestEntity, String.class);
 		        String jsonResonse = response.getBody();
 		        json = new JSONObject(jsonResonse);
-		        System.out.println("counter"+json);
-			} catch (IOException e) {
+		        System.out.println("jsonResponse"+json);
+			} catch (Exception e) {
 				e.printStackTrace();
+				//logger.error(e);
 			}		   
 	        return json.toString();
 	    }
-}
-
-/*@RequestMapping(value = "/updatecandidate", method = RequestMethod.POST)
-	@ResponseBody
-	public String update(@RequestParam("candidateid") String candidateid,@RequestParam("name") String name, @RequestParam("emailid") String emailid,
-			@RequestParam("dob") String dob,@RequestParam("profile") String profile ,HttpServletRequest request) {
+	 
+	 @RequestMapping(value = "/profilecheck",method=RequestMethod.POST)
+	 @ResponseBody
+	 public String addtimes(@RequestParam("profile") String profile,  HttpServletRequest request) {
 		RestTemplate restTemplate = new RestTemplate();
 		JSONObject json = new JSONObject();
-		HttpHeaders header = new HttpHeaders();
-		String token = request.getSession().getAttribute("token") != null
-				? request.getSession().getAttribute("token").toString()
-				: "";
-		String username = request.getSession().getAttribute("username") != null ?
-				request.getSession().getAttribute("username").toString():"";
-		header.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		header.set("Authorization", token);
-		header.set("username",username);
-		JSONObject dateJson = new JSONObject();
-		dateJson.put("candidateid",Integer.toString(candidateid));
-		dateJson.put("name", name);
-		dateJson.put("emailid", emailid);
-		dateJson.put("dob", dob);
-		dateJson.put("profile", profile);
-		
-		HttpEntity<String> requestEntity = new HttpEntity<>(dateJson.toString(), header);
+		HttpHeaders header = Utilities.userAuthentication(request);
+		JSONObject canJson = new JSONObject();
+		canJson.put("profile", profile);
+		HttpEntity<String> requestEntity = new HttpEntity<String>(canJson.toString(), header);
 		try {
-			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/update", HttpMethod.POST,
+			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/profilecheck", HttpMethod.POST,
 					requestEntity, String.class);
 			String jsonResonse = response.getBody();
 			json = new JSONObject(jsonResonse);
-		}  catch (HttpClientErrorException | HttpServerErrorException ex) {
-			logger.error(ex.getResponseBodyAsString());
+		} catch (Exception ex) {
+			logger.error(ex);
 		}
 		return json.toString();
 	}
-	
-	@RequestMapping(value = "/getcandidate.htm", method = RequestMethod.POST)
-	@ResponseBody
-	public String getCandidate(@RequestParam("candidateid") String candidateid, HttpServletRequest request) {
-		RestTemplate restTemplate = new RestTemplate();
-		JSONObject json = new JSONObject();
-		HttpHeaders header = new HttpHeaders();
-		/*String token = request.getSession().getAttribute("token") != null
-				? request.getSession().getAttribute("token").toString()
-				: "";
-		String username = request.getSession().getAttribute("name") != null
-				? request.getSession().getAttribute("name").toString(): "";
-		header.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		header.set("Authorization", token);
-		header.set("name",name);		
-		JSONObject candiJson = new JSONObject();
-		candiJson.put("candidateid", candidateid);
-		HttpEntity<String> requestEntity = new HttpEntity<>(candiJson.toString(), header);
-		try {
-			ResponseEntity<String> response = restTemplate.exchange(Utilities.readProperties() + "/getCustomer",
-					HttpMethod.POST, requestEntity, String.class);
-			String jsonResonse = response.getBody();
-			json = new JSONObject(jsonResonse);
-		} catch (Exception e){
-			e.printStackTrace();
-		}
-		return json.toString();
-	}
-}	*/  
+}
+
+
+

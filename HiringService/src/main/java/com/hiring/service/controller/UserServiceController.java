@@ -16,7 +16,7 @@ import com.hiring.dao.VendorDao;
 
 @RestController
 public class UserServiceController {
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	@RequestMapping(value = "/login",method=RequestMethod.POST)
 	public ResponseEntity<String> login(@RequestBody String request) {
 		UserDaoImpl userDao = new UserDaoImpl();
 		JSONObject jsonObject = new JSONObject();
@@ -41,20 +41,30 @@ public class UserServiceController {
 		}
 	}
 	
-	@RequestMapping(value = "/register", method = RequestMethod.POST)
+	@RequestMapping(value = "/adminApproval",method = RequestMethod.GET)
+	public ResponseEntity<String> siteList(@RequestHeader HttpHeaders headers) {
+		if (!Authorization.authorizeToken(headers)) {
+			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
+		} else {
+		    UserDaoImpl user = new UserDaoImpl();
+		    JSONObject json = user.siteList();
+			if (json.isEmpty()) {
+				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+			}
+			return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
+		}
+	}
+	
+	@RequestMapping(value = "/register",method = RequestMethod.POST)
 	public ResponseEntity<String> addUser(@RequestHeader HttpHeaders headers,@RequestBody String request) {
 		UserDaoImpl userDao = new UserDaoImpl();
 		VendorDao vendorDao = new VendorDao();
 		CustomerDao customerDao = new CustomerDao();
-		JSONObject json = new JSONObject();
 		JSONObject jsonObject = new JSONObject(request);
-		json = userDao.insertUser(jsonObject);
-		System.out.println(json.optString("userId"));
-		System.out.println(jsonObject.optString("role"));
+		JSONObject json = userDao.insertUser(jsonObject);
 		if(jsonObject.optString("role").equalsIgnoreCase("vendor")){
-			System.out.println("inside vendor");
 			jsonObject.put("userId", json.optString("userId"));
-			json = vendorDao.insertvendor(jsonObject);
+			json = vendorDao.insertVendor(jsonObject);
 		}else if(jsonObject.optString("role").equalsIgnoreCase("customer")){
 				jsonObject.put("userId", json.optString("userId"));
 				json = customerDao.insertCustomer(jsonObject);
@@ -65,3 +75,4 @@ public class UserServiceController {
 		return new ResponseEntity<String>(json.toString(), HttpStatus.OK);		
 	}
 }
+ 

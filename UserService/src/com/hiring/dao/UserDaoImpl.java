@@ -1,11 +1,11 @@
 package com.hiring.dao;
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -15,12 +15,12 @@ import org.json.JSONObject;
 
 import com.hiring.db.DBConnection;
 
+
 public class UserDaoImpl implements UserDao {
 	
 	private static Logger logger = Logger.getLogger(UserDaoImpl.class);
 	private static DBConnection conn = DBConnection.getInstance();
 	
-	@Override
 	public int isexistuser(JSONObject json) {
 		String sql = "SELECT username FROM users WHERE username =?";
 		int counter =0;
@@ -37,7 +37,7 @@ public class UserDaoImpl implements UserDao {
 			}
 			con.close();
 			return counter;
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);}
 		finally {
 			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
@@ -47,41 +47,40 @@ public class UserDaoImpl implements UserDao {
 		return 0;
 		}
 	
-	@SuppressWarnings("static-access")
-	@Override
-    public JSONObject insertUser(JSONObject json) {
+	public JSONObject insertUser(JSONObject json) {
 		JSONObject jsonObj = new JSONObject();
 		Connection con = null;
         PreparedStatement preparedstmt = null;
-
+        ResultSet rs = null;
 		int roleid =isexistuser(json);
 		if(roleid>0) {
 			jsonObj.put("msg","already exists");
 		}
 		else {
-		String sql = "INSERT INTO users(firstname,lastname,password,updatedon,username,role) VALUES(?,?,?,?,?,?)";
+		String sql = "INSERT INTO users(firstname,lastname,pass,updatedon,username,role) VALUES(?,?,?,?,?,?)";
 		try {
 			con = conn.getConnection();
-			preparedstmt = con.prepareStatement(sql,preparedstmt.RETURN_GENERATED_KEYS);
+			preparedstmt = con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 			preparedstmt.setString(1, json.getString("firstname"));
 			preparedstmt.setString(2, json.getString("lastname"));
-			preparedstmt.setString(3, getMD5EncryptedValue(json.getString("password")));
+			preparedstmt.setString(3, getMD5EncryptedValue(json.has("password")?json.getString("password"):"123456"));
 			preparedstmt.setString(4, LocalDateTime.now().toString());
 			preparedstmt.setString(5, json.getString("username"));
 			preparedstmt.setString(6, json.getString("role"));
 			preparedstmt.executeUpdate();
-			ResultSet rs = preparedstmt.getGeneratedKeys();
+			rs = preparedstmt.getGeneratedKeys();
             if(rs != null && rs.next()){
             	jsonObj.put("userId", rs.getInt(1));
             }
 			jsonObj.put("msg","user Created successfully");
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);
 			jsonObj.put("msg","user Creation failed");
 	     }
 		finally {
 			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
 			 if (preparedstmt != null) { try {preparedstmt.close();} catch (SQLException e){logger.error(e);}}
+			 if (rs != null) { try {rs.close();} catch (SQLException e){logger.error(e);}}
 		  }
 		}
 		return jsonObj;
@@ -89,11 +88,10 @@ public class UserDaoImpl implements UserDao {
     
   
 	
-	@Override
 	public JSONObject userList(){
 		JSONObject json = new JSONObject();
 		JSONArray jsonArr =  new JSONArray();
-		String sql = "SELECT users.userid, firstname,lastname,password,username,email,roleid,role,reportingperson FROM users  " + 
+		String sql = "SELECT users.userid, firstname,lastname,pass,username,email,roleid,role,reportingperson FROM users  " + 
 				"INNER JOIN role ON users.roleid=role.id;";
 		Connection con = null;
 		PreparedStatement createstatment = null;
@@ -107,7 +105,7 @@ public class UserDaoImpl implements UserDao {
 				use.put("userid",rs.getInt("userid"));
 				use.put("firstname",rs.getString("firstname"));
 				use.put("lastname",rs.getString("lastname"));
-				use.put("password",rs.getString("password"));
+				use.put("password",rs.getString("pass"));
 				use.put("Role",rs.getString("role"));
 				use.put("username",rs.getString("username"));
 				use.put("email",rs.getString("email"));
@@ -115,7 +113,7 @@ public class UserDaoImpl implements UserDao {
 				jsonArr.put(use);
 			}
 			json.put("userList", jsonArr);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);
 		}	finally {
    			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
@@ -134,8 +132,8 @@ public class UserDaoImpl implements UserDao {
             final MessageDigest md5MsgDigest = MessageDigest.getInstance("MD5");
             md5MsgDigest.reset();
             md5MsgDigest.update(defaultBytes);
-            final byte messageDigest[] = md5MsgDigest.digest();
-            final StringBuffer hexString = new StringBuffer();
+            final byte[] messageDigest= md5MsgDigest.digest();
+            final StringBuilder hexString = new StringBuilder();
             for (final byte element : messageDigest) {
                 final String hex = Integer.toHexString(0xFF & element);
                 if (hex.length() == 1) {
@@ -144,8 +142,8 @@ public class UserDaoImpl implements UserDao {
                 hexString.append(hex);
             }
             password = hexString + "";
-        } catch (final NoSuchAlgorithmException nsae) {
-            nsae.printStackTrace();
+        } catch (Exception ex) {
+           logger.error(ex);
         }
       
 		return password;
@@ -153,8 +151,7 @@ public class UserDaoImpl implements UserDao {
 		
 }
       
-    @Override
-	public int login(JSONObject json) {
+    public int login(JSONObject json) {
 	  Connection con = null;
       PreparedStatement preparedstmt = null;
       ResultSet rs=null;
@@ -162,7 +159,7 @@ public class UserDaoImpl implements UserDao {
 		try {
 			int userId =isexistuser(json);
 			if(userId>0) {
-			String sql = "SELECT username,password FROM users WHERE username=? AND password=?";
+			String sql = "SELECT username,pass FROM users WHERE username=? AND pass=?";
 			con = conn.getConnection();
 			preparedstmt = con.prepareStatement(sql);
 			preparedstmt.setString(1, json.getString("username"));
@@ -188,7 +185,6 @@ public class UserDaoImpl implements UserDao {
 		}
 		return counter;
 	}
-	@Override
 	public JSONObject CheckRole(JSONObject jsonObj){
         JSONObject json = new JSONObject();
         Connection con = null;
@@ -208,7 +204,7 @@ public class UserDaoImpl implements UserDao {
 				json.put("token",rs.getString("token"));
 				json.put("name", rs.getString("name"));
 			}
-		}catch (SQLException e) {
+		}catch (Exception e) {
 			logger.error(e);
 		}
 		finally {
@@ -219,7 +215,6 @@ public class UserDaoImpl implements UserDao {
 		return json;
 	}
 
-	@Override
 	public void validateToken(String username) {
 		Connection con = null;
 		PreparedStatement preparedstmt = null;
@@ -237,7 +232,7 @@ public class UserDaoImpl implements UserDao {
 		preparedstmt.setString(2, token);
 		preparedstmt.setString(3, LocalDateTime.now().toString());
 		preparedstmt.executeUpdate();
-		}catch (SQLException e) {
+		}catch (Exception e) {
 			logger.error(e);
 		}
 		finally {
@@ -245,45 +240,15 @@ public class UserDaoImpl implements UserDao {
 			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
 		}
 	}
-//	@Override
-//	public Boolean authorizeToken(String username,String token) {
-//		Connection con =null;
-//		PreparedStatement preparedstmt = null;
-//		ResultSet rs= null;
-//		try {
-//			String sql ="SELECT token FROM sessiontoken WHERE username=?";
-//			con=conn.getConnection();
-//			preparedstmt=con.prepareStatement(sql);
-//			preparedstmt.setString(1, username);
-//			rs= preparedstmt.executeQuery();
-//			if(rs.next()) {
-//				if(rs.getString("token").equalsIgnoreCase(token)) {
-//					return true;
-//				}
-//				else {
-//					return false;
-//				}
-//			}
-//		}catch(SQLException e) {
-//			logger.error(e);
-//		}finally {
-//			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
-//			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
-//		}
-//		return false;
-//	}
-//	
 	
-	@Override
 	public JSONObject passwordchange(JSONObject json) {
 		  JSONObject jsonObj = new JSONObject();
 		  Connection con = null;
 	      PreparedStatement preparedstmt = null;
-	      ResultSet rs=null;
 			try {
 				int userid = checkoldPassword(json);
 				if(userid>0) {
-				String sql = "UPDATE users set Password=? WHERE id=?";
+				String sql = "UPDATE users set pass=? WHERE id=?";
 				con = conn.getConnection();
 				preparedstmt = con.prepareStatement(sql);
 				preparedstmt.setString(1,getMD5EncryptedValue(json.getString("password")));
@@ -296,14 +261,13 @@ public class UserDaoImpl implements UserDao {
 				else {
 					jsonObj.put("msg", "Incorrect old password");
 				}
-			} catch (SQLException e) {
+			} catch (Exception e) {
 				logger.error(e);
 				jsonObj.put("msg", "password updation failed");
 			}
 			finally {
 				 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
 				 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
-				 if (rs != null) { try { rs.close(); } catch (SQLException e) {logger.error(e);}}
 			}
 			return jsonObj;
 		}
@@ -314,7 +278,7 @@ public class UserDaoImpl implements UserDao {
 	      ResultSet rs=null;
 	      int counter =0;
 			try {
-				String sql ="SELECT id FROM users WHERE password=? and id=?";
+				String sql ="SELECT id FROM users WHERE pass=? and id=?";
 				con = conn.getConnection();
 				preparedstmt = con.prepareStatement(sql);
 				preparedstmt.setString(1,getMD5EncryptedValue(json.getString("oldpassword")));
@@ -324,7 +288,7 @@ public class UserDaoImpl implements UserDao {
 					counter=1;
 				}
 				}
-			catch (SQLException e) {
+			catch (Exception e) {
 				logger.error(e);
 			}
 			finally {
@@ -334,7 +298,39 @@ public class UserDaoImpl implements UserDao {
 			}
 			return counter;
 	}
-
+	public JSONObject siteList() {
+		JSONObject json =new JSONObject();
+		JSONArray jsonarr= new JSONArray();
+		Connection con = null;
+		PreparedStatement preparedstmt=null;
+	    ResultSet rs = null;
+	    String sql ="Select vendorId,vendorname,location,EmailId,Phonenumber,companydetails,status from vendor where status=?";
+	    try {
+	    	con = conn.getConnection();
+	    	preparedstmt = con.prepareStatement(sql);
+			preparedstmt.setString(1,"UnApproved");
+			rs = preparedstmt.executeQuery();
+			while (rs.next()) {
+				JSONObject site = new JSONObject();
+				site.put("vendorname",rs.getString("vendorname"));
+				site.put("location",rs.getString("location"));
+				site.put("EmailId",rs.getString("EmailId"));
+				site.put("Phonenumber",rs.getString("Phonenumber"));
+				site.put("companydetails",rs.getString("companydetails"));
+				site.put("status",rs.getString("status"));
+				jsonarr.put(site);
+			}
+			json.put("siteList", jsonarr);
+	    } catch (Exception e) {
+			logger.error(e);
+		}finally {
+			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
+			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
+			 if (rs != null) { try { rs.close(); } catch (SQLException e) {logger.error(e);}}
+		}
+		return json;
+	}
+			
 	
 	
 }

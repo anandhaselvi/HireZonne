@@ -45,16 +45,14 @@
 				<input class="login" type="submit" value="login">
 			</div>
 			<div class="col-sm-12 my-4">
-			<span style="color:#E2E6E7;">Don't have an account?</span>&nbsp;&nbsp;<a href="register" class="text-info" id="candidateregister">Register here</a>
-			<a href="register?type=vendor" class="text-info" id="vendorregister">Register here</a>
+			<span style="color:#E2E6E7;">Don't have an account?</span>&nbsp;&nbsp;
+			<a href="register?type=vendor"  class="text-info"  id="vendorregister">Register here</a>
 			</div>
-			<input type="hidden" value="<%= request.getParameter("id") %>">
 		</form>
 	</div>
 </div>
 <footer>HireZone v0.1</footer>
   <script src="${pageContext.request.contextPath}/resources/assets/js/jquery-3.3.1.min.js"></script>
-
 <script>
 $(document).ready(function(){
 	debugger;
@@ -62,11 +60,7 @@ $(document).ready(function(){
 	 var urlParams = new URLSearchParams(queryString);	
 	 // get the required parameter
 	 var param = urlParams.get('id'); 
-		if(param != undefined){
-			document.getElementById("candidateregister").style.display = 'none';
-		}else{
-			document.getElementById("vendorregister").style.display = 'none';
-		}
+		
  });
 </script>
 </body>

@@ -14,6 +14,6 @@ class CustomerListTest {
 		//JSONObject jsonobj = cust.customerList();
 		//System.out.println(jsonobj);
 		CandidateDao dao = new CandidateDao();
-		System.out.println(dao.candidatemap("1"));
+		System.out.println(dao.candidateMap("1"));
 }
 }

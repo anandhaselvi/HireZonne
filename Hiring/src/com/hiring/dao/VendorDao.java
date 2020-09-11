@@ -9,15 +9,15 @@ import java.time.LocalDateTime;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import com.hiring.db.DBConnection;
 public class VendorDao implements Vendor {
 private static DBConnection conn = DBConnection.getInstance();
 private static Logger logger = Logger.getLogger(VendorDao.class);
 
-@Override
-public JSONObject insertvendor(JSONObject json) {
+public JSONObject insertVendor(JSONObject json) {
 	JSONObject jsonObject = new JSONObject();
-	int counter=nameExists(json.getString("firstname") +" "+json.getString("lastname"));
+	int counter=nameExists(json.getString("firstname")+" "+json.getString("lastname"));
 	if(counter>0) {
 		jsonObject.put("msg", "vendor already exists");
 		}
@@ -25,53 +25,61 @@ public JSONObject insertvendor(JSONObject json) {
 		Connection con = null;		
 		PreparedStatement preparedstmt = null;
       	try {
-			//String sql = "Insert into vendor(vendorname,description,isprimary,customer,reportingto)values(?,?,?,?,?)";
-			String sql = "Insert into vendor(vendorname,isprimary,customer,reportingto,userId,createdon,createdby)values(?,?,?,?,?,?,?)";
+			String sql = "Insert into vendor(companydetails,isprimary,customer,taxid,address,contact,vendorname,email,phone,insurance,certification,partnership,reportingto,createdon,status,userId,createdby,category)values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
      		con = conn.getConnection();
 			preparedstmt = con.prepareStatement(sql);
-			//preparedstmt.setString(1, json.getString("vendorId"));
-			preparedstmt.setString(1,json.getString("firstname") +" "+json.getString("lastname"));
-			//preparedstmt.setString(2,json.getString("description"));
-			preparedstmt.setInt(2,json.getInt("isprimary"));
-			preparedstmt.setString(3,json.getString("customerId"));
-			preparedstmt.setString(4,json.optString("reportingto").isEmpty()?"0":json.optString("reportingto"));
-			preparedstmt.setString(5,json.getString("userId"));
-			preparedstmt.setString(6,LocalDateTime.now().toString());
-			preparedstmt.setString(7,json.getString("userId"));
-			preparedstmt.executeUpdate();
+			preparedstmt.setString(1,json.getString("companydetails"));
+			preparedstmt.setString(2,json.optString("isprimary"));
+			preparedstmt.setString(3,json.optString("customerId"));
+			preparedstmt.setString(4,json.getString("taxid"));
+			preparedstmt.setString(5,json.getString("address"));
+			preparedstmt.setString(6,json.getString("contact"));
+			preparedstmt.setString(7,json.getString("firstname") +" "+json.getString("lastname"));
+			preparedstmt.setString(8,json.getString("email"));
+			preparedstmt.setString(9,json.getString("phone"));
+			preparedstmt.setString(10,json.getString("insurance"));
+			preparedstmt.setString(11,json.getString("certification"));
+			preparedstmt.setString(12,json.getString("partnership"));
+			preparedstmt.setString(13,json.optString("reportingto").isEmpty()?"0":json.optString("reportingto"));
+			preparedstmt.setString(14,LocalDateTime.now().toString());
+			preparedstmt.setString(15,json.getString("status"));
+			preparedstmt.setString(16,json.getString("userId"));
+			preparedstmt.setString(17,json.getString("userId"));
+			preparedstmt.setString(18,json.getString("category"));
+        	preparedstmt.executeUpdate();
 			jsonObject.put("msg", "vendor added successfully");
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);
+			e.printStackTrace();
 			jsonObject.put("msg", "vendor creation failed");
 		}
 		finally {
 			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
-			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
-			
+			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}	
 		}
 	}
 	return jsonObject;
 }
 
 
-@Override
-public int nameExists(String vendorname) {
+
+private int nameExists(String vendorname) {
 	Connection con = null;
 	PreparedStatement preparedstmt= null;
 	ResultSet rs = null;
+	int counter = 0;
 	try {
-		String sql = "SELECT vendorname FROM vendor WHERE vendorname=?";
-		int counter = 0;
+		String sql = "SELECT vendorId FROM vendor WHERE vendorname=?";
 		con = conn.getConnection();
 		preparedstmt = con.prepareStatement(sql);
 		preparedstmt.setString(1, vendorname);
-		rs = preparedstmt.executeQuery();
+        rs = preparedstmt.executeQuery();
 		if (rs.next()) {
 			counter = 1;
 		}
 		return counter;
-	} catch (SQLException e) {
-		e.printStackTrace();
+	} catch (Exception e) {
+		logger.error(e);
 		return 0;
 	}
 	finally {
@@ -100,7 +108,7 @@ public JSONObject getCustomer() {
 			jsonArr.put(json);
 		}
 		jsonObject.put("getCustomer", jsonArr);
-	} catch (SQLException e) {
+	} catch (Exception e) {
 		logger.error(e);
 	} finally {
 		 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
@@ -108,6 +116,33 @@ public JSONObject getCustomer() {
 		 if (rs != null) { try { rs.close(); } catch (SQLException e) {logger.error(e);}}
 	}
 	return jsonObject;
+}
+
+
+public JSONObject getVendor(int vendorId) {
+	JSONObject json = new JSONObject();
+	Connection con = null;
+    PreparedStatement preparedstmt = null;
+    ResultSet rs=null;
+	try {
+		String sql = "SELECT email FROM vendor WHERE vendorId =?";
+		con = conn.getConnection();
+		preparedstmt = con.prepareStatement(sql);
+		preparedstmt.setInt(1, vendorId);
+		rs=preparedstmt.executeQuery();
+		if (rs.next()) {
+		 json.put("email", rs.getString("email"));
+		}
+		con.close();
+	}catch (Exception e) {
+		logger.error(e);
+	}
+	finally {
+		 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
+		 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
+		 if (rs != null) { try { rs.close(); } catch (SQLException e) {logger.error(e);}}
+	}
+	return json;
 }
 	public JSONObject getReporting() {
 		JSONObject jsonObject = new JSONObject();
@@ -127,7 +162,7 @@ public JSONObject getCustomer() {
 				jsonArr.put(json);
 			}
 			jsonObject.put("getReporting", jsonArr);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);
 		} finally {
 			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
@@ -145,7 +180,7 @@ public JSONObject getCustomer() {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT vendor.vendorid, vendor.vendorname,vendor.description,vendor.isprimary,customer.companyname, vendor.reportingto, username FROM vendor"
-						+" INNER JOIN customer ON vendor.customer = customer.customerid INNER JOIN users ON users.id = vendor.userId WHERE";
+						+" INNER JOIN customer ON vendor.customer = customer.userId INNER JOIN users ON users.id = vendor.userId WHERE";
 			if(role.equalsIgnoreCase("customer")) {		
 						sql+= " vendor.customer=? AND isprimary=?";
 			}else if(role.equalsIgnoreCase("vendor")) {
@@ -177,7 +212,7 @@ public JSONObject getCustomer() {
 				jsonarr.put(ven);
 			}
 			jsonobj.put("vendorList", jsonarr);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);
 		}finally {
 			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
@@ -204,7 +239,7 @@ public JSONObject getCustomer() {
 			 json.put("reportingto", rs.getString("reportingto"));
 			}
 			con.close();
-		}catch (SQLException e) {
+		}catch (Exception e) {
 			logger.error(e);
 		}
 		finally {
@@ -221,17 +256,18 @@ public JSONObject getCustomer() {
 		PreparedStatement preparedstmt = null;
 		try {
 			String[] vendorIds = jsonObject.getString("vendorId").replaceAll(",$","").split(",");
-			String sql = "UPDATE vendor SET isprimary=? where vendorId=?";
+			String sql = "UPDATE vendor SET isprimary=?, status=? where vendorId=?";
 			con = conn.getConnection();
 			preparedstmt = con.prepareStatement(sql);
 			for (String vendorId : vendorIds) {
 			preparedstmt.setString(1, "1");
-			preparedstmt.setString(2, vendorId);
+			preparedstmt.setString(2, "Approved");
+			preparedstmt.setString(3, vendorId);
 			preparedstmt.executeUpdate();
 			}
 		 	json.put("msg","Vendor Updated");
 			return  json;
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);
 			json.put("msg","Vendor failed");
 			return json;
@@ -261,7 +297,7 @@ public JSONObject getCustomer() {
 				json.put("reportingto", rs.getInt("reportingto"));
 				json.put("vendorId", rs.getInt("vendorId"));
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);
 		}
 		finally {
@@ -291,7 +327,7 @@ public JSONObject getCustomer() {
 				json.put("reportingto", rs.getInt("reportingto"));
 				json.put("vendorId", rs.getInt("vendorId"));
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);
 		}
 		finally {
@@ -301,4 +337,29 @@ public JSONObject getCustomer() {
 		}
 		return json;
 	}
+	public int checkStatus(String status,String userId) {
+		Connection con = null;
+		PreparedStatement preparedstmt= null;
+		ResultSet rs = null;
+		try {
+			String sql="SELECT vendorId, status FROM vendor WHERE status=? AND userId =?";
+			con=conn.getConnection();
+			preparedstmt=con.prepareStatement(sql);
+			preparedstmt.setString(1,status);
+			preparedstmt.setString(2,userId);
+			rs=preparedstmt.executeQuery();
+			int vendorId = 0;
+			if(rs.next()) {
+				 vendorId = rs.getInt("vendorId");
+			}
+			return vendorId;
+		} catch(Exception e) {
+			logger.error(e);
+			return 0;
+		}finally {
+			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
+			 if (preparedstmt != null) { try { preparedstmt.close();} catch (SQLException e){logger.error(e);}}
+			 if (rs != null) { try { rs.close(); } catch (SQLException e) {logger.error(e);}}
+	   }
+	 }
 }

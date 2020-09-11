@@ -11,55 +11,47 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hiring.dao.Authorization;
 import com.hiring.dao.SendMail;
+import com.hiring.dao.UserDaoImpl;
 import com.hiring.dao.VendorDao;
 
 @RestController
 public class VendorServiceController {
 
-	@RequestMapping(value = "/vendor", method = RequestMethod.GET)
-
+	@RequestMapping(value = "/vendor",method=RequestMethod.GET)
 	public ResponseEntity<String> vendor(@RequestHeader HttpHeaders headers) {
 		JSONObject jsonObject = new JSONObject();
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if (!Authorization.authorizeToken(username, token)) {
+		if (!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
 			return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
 		}
 	}
-
-	@RequestMapping(value = "/vendorinsert", method = RequestMethod.POST)
+	
+	@RequestMapping(value = "/vendorinsert",method=RequestMethod.POST)
 	public ResponseEntity<String> insertvendor(@RequestHeader HttpHeaders headers, @RequestBody String request) {
 		VendorDao vendor = new VendorDao();
+		UserDaoImpl userDao = new UserDaoImpl();
 		JSONObject jsonObject = new JSONObject();
 		JSONObject json = new JSONObject(request);
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if (!Authorization.authorizeToken(username, token)) {
-			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
-		} else {
-			jsonObject = vendor.insertvendor(json);
-			System.out.println("counter" + jsonObject);
-			if (jsonObject.isEmpty()) {
-				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
-			}
-			return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
+		System.out.println("request"+json);
+		jsonObject = userDao.insertUser(json);
+		json.put("userId", jsonObject.optString("userId"));
+     	jsonObject = vendor.insertVendor(json);
+		if (jsonObject.isEmpty()) {
+			return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 		}
+		return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
 	}
-	@RequestMapping(value = "/vendorupdate", method = RequestMethod.POST)
+	
+	@RequestMapping(value = "/vendorupdate",method=RequestMethod.POST)
 	public ResponseEntity<String> vendorupdate(@RequestHeader HttpHeaders headers, @RequestBody String request) {
-		VendorDao vendor = new VendorDao();
-		JSONObject jsonObject = new JSONObject();
 		JSONObject json = new JSONObject(request);
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if (!Authorization.authorizeToken(username, token)) {
+		if (!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
-			jsonObject = vendor.vendorupdate(json);
+			VendorDao vendor = new VendorDao();
+			JSONObject jsonObject = vendor.vendorupdate(json);
 			System.out.println("counter" + jsonObject);
 			if (jsonObject.isEmpty()) {
 				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
@@ -67,17 +59,13 @@ public class VendorServiceController {
 			return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
 		}
 	}
-	@RequestMapping(value = "/getcustomer", method = RequestMethod.POST)
+	@RequestMapping(value = "/getcustomer", method=RequestMethod.GET)
 	public ResponseEntity<String> getcustomer(@RequestHeader HttpHeaders headers) {
-		VendorDao ven = new VendorDao();
-		JSONObject jsonObject = new JSONObject();
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if (!Authorization.authorizeToken(username, token)) {
+		if (!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
-			jsonObject = ven.getCustomer();
-			System.out.println("counter" + jsonObject);
+			VendorDao ven = new VendorDao();
+			JSONObject jsonObject = ven.getCustomer();
 			if (jsonObject.isEmpty()) {
 				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 			}
@@ -85,17 +73,13 @@ public class VendorServiceController {
 		}
 	}
 
-	@RequestMapping(value = "/getreporting", method = RequestMethod.POST)
+	@RequestMapping(value = "/getreporting",method=RequestMethod.GET)
 	public ResponseEntity<String> getrep(@RequestHeader HttpHeaders headers) {
-		VendorDao ven = new VendorDao();
-		JSONObject jsonObject = new JSONObject();
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if (!Authorization.authorizeToken(username, token)) {
+		if (!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
-			jsonObject = ven.getReporting();
-			System.out.println("counter" + jsonObject);
+			VendorDao ven = new VendorDao();
+			JSONObject jsonObject = ven.getReporting();
 			if (jsonObject.isEmpty()) {
 				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 			}
@@ -103,17 +87,13 @@ public class VendorServiceController {
 		}
 	}
 
-	@RequestMapping(value = "/assignvendor/{userId}/{role}", method = RequestMethod.GET)
+	@RequestMapping(value = "/assignvendor/{userId}/{role}",method=RequestMethod.GET)
 	public ResponseEntity<String> listtime(@RequestHeader HttpHeaders headers,@PathVariable String userId,@PathVariable String role) {
-		VendorDao ven = new VendorDao();
-		JSONObject json = new JSONObject();
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if (!Authorization.authorizeToken(username, token)) {
+		if (!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
-			json = ven.vendorList(userId,role);
-			System.out.println("counter" + json);
+			VendorDao ven = new VendorDao();
+			 JSONObject json = ven.vendorList(userId,role);
 			if (json.isEmpty()) {
 				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 			}
@@ -121,23 +101,21 @@ public class VendorServiceController {
 		}
 	}
 
-	@RequestMapping(value = "/sendmail", method = RequestMethod.POST)
+	@RequestMapping(value = "/sendmail",method=RequestMethod.POST)
 	public ResponseEntity<String> mail(@RequestHeader HttpHeaders headers, @RequestBody String request) {
 		SendMail mail = new SendMail();
-		VendorDao vendordao = new VendorDao();
-		JSONObject json = new JSONObject();
 		JSONObject jsonObj = new JSONObject(request);
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if (!Authorization.authorizeToken(username, token)) {
+		System.out.println(jsonObj);
+		if (!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
+			VendorDao vendordao = new VendorDao();
 			if (jsonObj.optString("role").equalsIgnoreCase("vendor")) {
 				JSONObject venJson = vendordao.getCustomerId(jsonObj.optString("userId"));
-				System.out.println("vendorJson"+venJson);
+				System.out.println("vendor"+venJson);
 				jsonObj.put("customerId", venJson.optInt("customer"));
-		}
-		json = mail.sendmail(jsonObj);
+			}
+		JSONObject json = mail.sendmail(jsonObj);
 		if (json.isEmpty()) {
 				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 		}
@@ -145,6 +123,25 @@ public class VendorServiceController {
 		}
 	}
 	
-
+    @RequestMapping(value = "/send",method=RequestMethod.POST)
+    public ResponseEntity<String> mailsend(@RequestHeader HttpHeaders headers, @RequestBody String request) {
+        SendMail mail = new SendMail();
+        VendorDao vendordao = new VendorDao();
+        JSONObject json = new JSONObject();
+        JSONObject jsonObj = new JSONObject(request);
+        if (!Authorization.authorizeToken(headers)) {
+            return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
+        } else {
+                JSONObject vJson = vendordao.getVendor(jsonObj.optInt("vendorId"));
+                jsonObj.put("email",vJson.getString( "email"));
+                json= mail.sendmail(jsonObj);
+                jsonObj.put("status",vJson.getString("submitType"));
+                json = vendordao.vendorupdate(jsonObj);
+        }
+              if (json.isEmpty()) {
+                return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
+        }
 }
 

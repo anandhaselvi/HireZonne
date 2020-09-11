@@ -105,7 +105,7 @@ $(document).ready(function(){
     			  if(obj.msg=="candidate created successfully" ){
     				toastr.success("candidate created successfully"); 
     			  }
-    			  if(obj.msg=="candidatename already exists"){
+    			  if(obj.msg=="name already exists"){
     				toastr.success("candidatename already exists");  
     			  }
     			 if(obj.msg=="candidate creation failed"){

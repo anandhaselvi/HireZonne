@@ -3,27 +3,33 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 		pageEncoding="ISO-8859-1"%>
 <jsp:include page="/WEB-INF/views/header.jsp" />
-
+<style>
+.blur{
+opacity:0.3;
+}
+</style>
 	<div class="site-section bg-light">
-		  <div class="container">
+		  <div id= "jobpost" class="container">
 		  <!--form id="jobSubmit" onsubmit="return false" class="p-5 bg-white mt-5"!-->
 			<div class="row">			
 			<div class="col-md-12 col-lg-10  my-5">
 			<h3>Job Posting</h3>
+			<span id="message" class="text-danger font-weight-bold" style="color:#E2E6E7;">${message}</span>
+			
 		<div class="col-sm-12">
 			<div class="row">
 				<div class="col-sm-6">
 						<div class="form-group">
 							<input type="hidden" id="timesheetId">
 							<label  class="font-weight-bold" for="title">Title:</label> 
-							<input type="text" id="title"  name="title" class="form-control" >
+							<input type="text" id="title"  name="title" maxlength="20" class="form-control" >
 
 						</div>
 					</div>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="font-weight-bold" for="firstname">Location:</label> 					 
-						  <input type="text"  id="location"  name="location" class="form-control">
+						  <input type="text"  id="location"  name="location" maxlength="20" class="form-control">
 					</div>
 				</div>
 			</div>
@@ -54,14 +60,34 @@
 			<div class="row">
 				 <div class="col-md-6">
 					<label class="font-weight-bold" for="fullname">Experience Required</label>
-						<input type="text" id="experiencerequired" name="experiencerequired" class="form-control"> 
-					  </label>
+						<input type="text" id="experiencerequired" name="experiencerequired" maxlength="10" class="form-control"> 
 					</div>
 				<div class="col-md-6">
 					<label class="font-weight-bold" for="fullname">Work Authorization#</label>
-						<input type="text" id="workauthorization" name="workauthorization" class="form-control">
+						<input type="text" id="workauthorization" name="workauthorization" maxlength="20" class="form-control">
 					</div>
 				</div>
+	</div>
+		 <div class="col-md-12 mt-2">
+			<div class="row">
+				 <div class="col-md-6">
+					<label class="font-weight-bold" for="fullname">Rate</label>
+						<input type="text" id="rate" name="rate" maxlength="10" class="form-control"> 
+					</div>
+				<div class="col-md-6">
+					<label class="font-weight-bold" for="fullname">Visa Type</label>
+					<select class="form-control" id="visatype" name ="visatype">
+						<option>Select Visa Type</option>
+						<option value="Full Time">No Visa Sponsor</option>
+						<option value="Part Time">Green Card</option>
+						<option value="Freelance">H1-Visa</option>
+						<option value="Internship">H4- Visa</option>
+						<option value="OPT">OPT</option>
+						<option value="CPT">CPT</option>
+						<option value ="Others">Others</option>
+					</select>
+				</div>
+		</div>
 		</div>
 		
 	<c:if test="${fn:containsIgnoreCase(sessionScope.role, 'vendor')}">
@@ -83,10 +109,11 @@
 			<div class="row">
 				<div class="col-md-12">
 					<label class="font-weight-bold" for="fullname">Job Description</label>
-					  <textarea name="jobdesc" class="form-control" id="jobdesc" cols="30" rows="5"></textarea>
+					  <textarea name="jobdesc" class="form-control" id="jobdesc" cols="30" rows="5" maxlength="300"></textarea>
 				</div>
 			</div>
 	</div>
+	
 
 	<div class="col-md-12 mt-5">
 			 <div class="row">
@@ -99,7 +126,6 @@
 				
  <div class="modal" id="loginModal">
     <div class="modal-dialog modal-lg">
-	<form  id ="timesheetSubmit" onsubmit="return false">
       <div class="modal-content">
       
         <!-- Modal Header -->
@@ -113,8 +139,7 @@
          
 
 		<div class="table-responsive mt-4">
-			<table class="table table-bordered" width="100%"
-				cellspacing="0">
+			<table class="table table-bordered">
 				<thead>
 					<tr>
 						<th></th>
@@ -154,7 +179,12 @@
 					  "hideDuration": "1000",
 					  "timeOut": "5000",
 					  "extendedTimeOut": "1000"
-		};	  
+		};	
+	var message = "<%= request.getAttribute("message") %>";
+	if(message !=""){
+		$( "#jobpost" ).addClass( "blur" );
+
+	}
 	});
 	
 	function addjob() {
@@ -169,6 +199,8 @@
 			if($("#jobId").val() != undefined){
 			jobId = $("#jobId").val();
 			}
+			var rate=$('#rate').val();
+			var visatype=$('#visatype').val();
 			$.ajax({
 				url:'insertjob.htm',
 				type:"POST",
@@ -180,16 +212,37 @@
 					experiencerequired:experiencerequired,
 					workauthorization:workauthorization,
 					jobdescription:jobdescription,
-					jobId:jobId
+					jobId:jobId,
+					rate: rate,
+					visatype: visatype,
+				
 					},
 					success: function(result){
 						var obj=JSON.parse(result);
-						if(obj.msg == "Job created successfully"){
+						console.log(obj);
+						//obj.alert(msg);
+					 if(obj.msg =="Job created successfully"){
 							toastr.success("Job Created Successfully");	
-						}
+					  }
+						if(obj.msg == "You cannot post a job"){
+							toastr.warning("You cannot Post a Job");
+						} 
+						if(obj.msg == "Job Creation failed"){
+							toastr.error("Job Creation Failed");
+							}
+						$('#title').val("");
+						$('#location').val("");
+						$('#jobtype').val("");
+						$('#experiencerequired').val("");
+						$('workauthorization').val("");
+						$('jobdescription').val("");
+						$('jobId').val("");
+						$('rate').val("");
+						$('visatype').val("");
+						
 					}
-		  });
-	}	
+		    });
+	}
 
 	function searchjobList(){
 	$.ajax({
@@ -205,21 +258,48 @@
 		var jobDrop='';
 		for(var i=0;i<obj.jobList.length;i++){
 	   		jobDrop +='<tr><td><input type="radio"  value='+obj.jobList[i].jobId+' name="jobId"></td>'
-			+'<td>'+obj.jobList[i].jobId+'</td><td>'+obj.jobList[i].title+'</td>' 
-			  +'<td>'+obj.jobList[i].jobdescription+'</td>'
-			  +'</tr>'
+					+'<td>'+obj.jobList[i].jobId+'</td><td>'+obj.jobList[i].title+'</td>' 
+					+'<td>'+obj.jobList[i].jobdescription+'</td>'
+					+'</tr>'
 		}
 		$('#jobList').append(jobDrop);
 		}
 	 });
 	}
-	
-	function getJobRefNo(){
+	 function getJobRefNo(){
 		var jobRefNo = $("input[name='jobId']:checked").val();
 		if(jobRefNo != undefined){
 		$('#loginModal').modal('hide');
 		$('#jobId').val(jobRefNo);
 		}
 	}
+	 
+	 $('#jobSubmit').validate({
+		    rules: {
+		    	title:"required",
+				location:"required",
+				jobtype:"required",
+				experiencerequired:"required",
+				workauthorization:"required",
+				jobdescription:"required",
+				jobId:"required",
+				rate: "required",
+				visatype: "required"
+		    },
+		    messages: {
+		    	title : "Please enter title",
+		    	location: "Please enter location",
+		    	jobtype: "Please select jobtype",
+		    	experiencerequired:"Please enter experience required",
+		    	workauthorization: "Please enter workauthorization",
+		    	jobdescription:"Please enter jobdescription",
+		    	jobId:"Please enter jobId",
+		    	rate: "Please enter rate",
+		    	visatype:"Please enter visatype"
+		    },
+		    submitHandler: function(form) {
+		    	addjob();
+		    }
+		  });
 		</script>
 	</html>   

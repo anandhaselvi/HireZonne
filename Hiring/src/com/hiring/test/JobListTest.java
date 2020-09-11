@@ -22,7 +22,7 @@ class JobListTest {
 		//for list below
 		JSONObject json = job.jobList();
 		System.out.println(json);
-		dao.candidatemap("3");
+		dao.candidateMap("3");
 		System.out.println(job.jobRefNoListing("34"));
 	}
 

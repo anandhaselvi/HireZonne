@@ -31,7 +31,7 @@ class JobUpdateTest {
 		jsonobj.put("customerId", "0");
 		jsonobj.put("submittedType", "Secondaryvendor");
 		jsonobj.put("createdby", "2");
-		jobdao.candidatemapping(jsonobj);
+		jobdao.candidateMapping(jsonobj);
 			
 	}
 }

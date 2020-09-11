@@ -8,12 +8,12 @@
 		<h3>Vendor</h3>
 		
 		<div class="table-responsive mt-4">
-			<table class="table table-bordered" id="dataTable" width="100%"
-				cellspacing="0">
+			<table class="table table-bordered" id="dataTable">
 				<thead>
 					<tr>
+					<th><input type="checkbox" name="select_all" value="1"
+							id="example-select-all"></th>
 						<th>VendorName</th>
-						<th>Location</th>
 						<th>EmailId</th>
 						<th>Phone</th>
 						<th>Company</th>
@@ -22,33 +22,19 @@
 					</tr>
 				</thead>
 				<tbody>
+						<c:forEach var="adminApproval" items="${ven}">
 						<tr>
-							<td>Vendor</td>
-							<td>Chennai</td>
-							<td>vendor@hirezone.com</td>
-							<td>898798786088</td>
-							<td>LT pvt limited</td>
-							<td>UnApproved</td>
-							<td><button class="btn btn-success">Approve</button>&nbsp;<button class="btn btn-danger">Reject</button>
-						</tr>
-						<tr>
-							<td>SecondaryVendor</td>
-							<td>Chennai</td>
-							<td>secondaryvendor@hirezone.com</td>
-							<td>898798786088</td>
-							<td>LT pvt limited</td>
-							<td>UnApproved</td>
-							<td><button class="btn btn-success">Approve</button>&nbsp;<button class="btn btn-danger">Reject</button>
-						</tr>
-						<tr>
-							<td>tertiaryVendor</td>
-							<td>Chennai</td>
-							<td>vendor12@hirezone.com</td>
-							<td>898798786088</td>
-							<td>LT pvt limited</td>
-							<td>UnApproved</td>
-							<td><button class="btn btn-success">Approve</button>&nbsp;<button class="btn btn-danger">Reject</button>
-						</tr>
+							<td><input type="checkbox" value="${adminApproval.vendorId}"></td>
+							<td>${adminApproval.vendorname}</td>
+							<td>${adminApproval.emailId}</td>
+							<td>${adminApproval.phonenumber}</td>
+							<td>${adminApproval.companydetails}</td>
+							<td>${adminApproval.status}</td>
+							<td><button class="btn btn-success" onclick="vendorUpdate(${adminApproval.vendorId})">Approve</button>&nbsp;
+							<button class="btn btn-danger" onclick="send('Declined',${adminApproval.vendorId})" >Reject</button>&nbsp;
+							<button class="btn btn-info" onclick="send('SeekMoreInformation',${adminApproval.vendorId})" >Seek More Information</button>
+							</tr>
+					</c:forEach>
 				</tbody>
 			</table>
 		</div>
@@ -66,9 +52,11 @@ $(document).ready(function (){
          'targets': 6,
          'searchable':false,
          'orderable':false
+
       }],
-     
    });
+   vendorUpdate();
+   
    toastr.options = {
 			  "closeButton": false,
 			  "positionClass": "toast-top-center",
@@ -79,4 +67,47 @@ $(document).ready(function (){
 			  "extendedTimeOut": "1000"
 			};
    });
+function vendorUpdate(vendorId) {
+	// var vendorId=<%= request.getParameter("vendorId")%>
+	// var status =	$('#status').val();
+    $.ajax({
+            url:'vendorupdate',
+            type:"POST",
+            async:false,
+       	  data: {
+            vendorId:vendorId
+                 },
+              success: function(result) {
+                  var obj=JSON.parse(result);
+              if(obj.msg == "Vendor Updated"){
+                toastr.success("Vendor Updated Successfully");
+             }
+              if(obj.msg == "Vendor failed"){
+                toastr.error("Vendor Updation Failed");
+            }
+            
+           }
+       });
+    }
+function send(submitType,vendorId){
+	 $.ajax({
+		 url:"send",
+		 type:"POST",
+		 async:false,
+		 data:{
+		     vendorId:vendorId,
+			 submitType:submitType
+			 },
+		 success:function(response){
+	      var obj= JSON.parse(response);
+	      console.log(obj);
+	      if(obj.msg == "Sent message successfully"){
+              toastr.success("Sent message successfully");
+          }
+	      if(obj.msg == "Message sent failed"){
+              toastr.error("Messaage sent Failed");
+          }
+ 		}
+	 });
+	}
 </script>

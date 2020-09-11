@@ -11,33 +11,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.hiring.dao.Authorization;
 import com.hiring.dao.JobDao;
+
 @RestController
 public class JobServiceController {
-	@RequestMapping(value="/findjob", method=RequestMethod.GET)
+	@RequestMapping(value="/findjob",method=RequestMethod.GET)
 	public ResponseEntity<String> findjob(@RequestHeader HttpHeaders headers) {
-		//UserDaoImpl user = new UserDaoImpl();
-		JSONObject jsonObject = new JSONObject();
-		/*String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if(!user.authorizeToken(username, token)) {
-			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
-		} else {*/
-			return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
+			return new ResponseEntity<String>(HttpStatus.OK);
 		}
 	
 	
-	@RequestMapping(value="/jobposting", method=RequestMethod.GET)
+	@RequestMapping(value="/jobposting",method=RequestMethod.GET)
 	public ResponseEntity<String> jobposting(@RequestHeader HttpHeaders headers) {
-		JobDao jobDao = new JobDao();
-		JSONObject jsonObject = new JSONObject();
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if (!Authorization.authorizeToken(username, token)) {
+		if (!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
-			jsonObject = jobDao.jobList();
+			JobDao jobDao = new JobDao();
+			JSONObject jsonObject = jobDao.jobList();
 			if (jsonObject.isEmpty()) {
 				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 			}
@@ -47,40 +37,37 @@ public class JobServiceController {
 	
 	@RequestMapping(value="/jobList",method=RequestMethod.POST)
 	public ResponseEntity<String> job(@RequestHeader HttpHeaders headers) {
-		JobDao job = new JobDao();
-		JSONObject jsonObject = new JSONObject();
-		jsonObject = job.jobList();
-		System.out.println("counter" + jsonObject);
+		if (!Authorization.authorizeToken(headers)) {
+			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
+		} else {
+			JobDao job = new JobDao();
+			JSONObject jsonObject = job.jobList();
 		if (jsonObject.isEmpty()) {
 				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
+		}
 	}
 	
-	@RequestMapping(value="/createjobpost", method=RequestMethod.GET)
-	public ResponseEntity<String> addJob(@RequestHeader HttpHeaders headers) {
-		JSONObject jsonObject = new JSONObject();
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if(!Authorization.authorizeToken(username, token)) {
+	@RequestMapping(value="/createjobpost/{userId}",method=RequestMethod.GET)
+	public ResponseEntity<String> addJob(@RequestHeader HttpHeaders headers, @PathVariable String userId) {
+		if(!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
-			return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
+			JobDao dao = new JobDao();
+			JSONObject json = dao.vendorCategory(userId);
+			return new ResponseEntity<String>(json.toString(), HttpStatus.OK);
 		}
 	}
 
-	@RequestMapping(value="/insertjob",method=RequestMethod.POST)
-	public ResponseEntity<String> addJob(@RequestHeader HttpHeaders headers,@RequestBody String request) {
-		JobDao job = new JobDao();
-		JSONObject jsonObject = new JSONObject();
+	@RequestMapping(value="/insertjob", method=RequestMethod.POST)
+	public ResponseEntity<String> insertjob(@RequestHeader HttpHeaders headers,@RequestBody String request) {
 		JSONObject json = new JSONObject(request);
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if(!Authorization.authorizeToken(username, token)) {
+		if(!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		} else {
-			jsonObject = job.jobInsert(json);
-			System.out.println("counter" + jsonObject);
+			JobDao job = new JobDao();
+			JSONObject jsonObject = job.jobInsert(json);
 			if (jsonObject.isEmpty()) {
 				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 			}
@@ -89,31 +76,30 @@ public class JobServiceController {
 	}
 	
 
-	@RequestMapping(value="/getstatus",method=RequestMethod.POST)
+	@RequestMapping(value="/getstatus", method=RequestMethod.POST)
 	public ResponseEntity<String> getstatus(@RequestHeader HttpHeaders headers,@RequestBody String request){
-		JobDao job = new JobDao();
-		JSONObject jsonObject = new JSONObject();
 		JSONObject json = new JSONObject(request);
-		jsonObject= job.candidatemapping(json);
+		if(!Authorization.authorizeToken(headers)) {
+			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
+		} else {
+			JobDao job = new JobDao();
+			JSONObject jsonObject= job.candidateMapping(json);	
 		if (jsonObject.isEmpty()) {
 			return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
 		}
+	}
 	
 
 
 	@RequestMapping(value="/searchjobList/{userId}",method=RequestMethod.POST)
 	public ResponseEntity<String> searchjobList(@RequestHeader HttpHeaders headers,@PathVariable String userId) {
-	    JobDao job = new JobDao();
-		JSONObject jsonObject = new JSONObject();
-		String token = headers.getFirst("Authorization");
-		String username = headers.getFirst("username");
-		if(!Authorization.authorizeToken(username, token)) {
+		if(!Authorization.authorizeToken(headers)) {
 			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
 		}else {
-			jsonObject = job.jobRefNoListing(userId);
-			System.out.println("counter" + jsonObject);
+		    JobDao job = new JobDao();
+			JSONObject jsonObject = job.jobRefNoListing(userId);
 			if (jsonObject.isEmpty()) {
 				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
 			}
@@ -121,52 +107,20 @@ public class JobServiceController {
 		}
 			
 	}
-
-
+	
+	 @RequestMapping(value = "/jobbulkupload",method = RequestMethod.POST)
+	    public ResponseEntity<String> jobbulkupload(@RequestHeader HttpHeaders headers,@RequestBody String request) {
+	        JSONObject jsonObject = new JSONObject(request);
+	        if (!Authorization.authorizeToken(headers)) {
+	            return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
+	        } else {
+			 	JobDao jobdao = new JobDao();
+			 	JSONObject json= jobdao.jobInsert(jsonObject);
+	            if (json.isEmpty()) {
+	            return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
+	            }
+	        }
+	        return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
+	    }
 }
-		/*@RequestMapping(value="/fetchjob",method=RequestMethod.POST)
-		public ResponseEntity<String> fetchJob(@RequestHeader HttpHeaders headers,@RequestBody String request) {
-			JobDao job= new JobDao();
-			UserDaoImpl user = new UserDaoImpl();
-			JSONObject jsonObject = new JSONObject();
-			JSONObject json = new JSONObject(request);
-			String token = headers.getFirst("Authorization");
-			String username= headers.getFirst("username");
-			if(!user.authorizeToken(username, token)) {
-				return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
-				} else {
-					String jobpostingId =json.getString("jobpostingId");
-					jsonObject=job.fetchJob(jobpostingId);
-					if(jsonObject.isEmpty()) {
-						return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
-					}
-					return new ResponseEntity<String>(jsonObject.toString(),HttpStatus.OK);
-				}
-			}
-
-	@RequestMapping(value="/jobupdate",method =RequestMethod.POST)
-	public ResponseEntity<String> updateJob(@RequestHeader HttpHeaders headers,@RequestBody String request) {
-		JobDao jobdao= new JobDao();
-		UserDaoImpl user = new UserDaoImpl();
-		JSONObject jsonObject = new JSONObject();
-		JSONObject json = new JSONObject(request);
-		String token = headers.getFirst("Authorization");
-		String username= headers.getFirst("username");
-		if(!user.authorizeToken(username, token)) {
-			return new ResponseEntity<String>(HttpStatus.UNAUTHORIZED);
-			} else {
-			jsonObject=jobdao.jobUpdate(json);
-			if(jsonObject.isEmpty()) {
-				return new ResponseEntity<String>(HttpStatus.NO_CONTENT);
-			}
-			return new ResponseEntity<String>(jsonObject.toString(),HttpStatus.OK);
-		}
-}*/
-
-
-
-
-
-
-
-
+	

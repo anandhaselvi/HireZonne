@@ -9,7 +9,7 @@
 				 
 					</div>
 		          <div class="table-responsive">
-		                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+		                <table class="table table-bordered" id="dataTable">
 		                  <thead>
 		                    <tr>
 							  <th><input type="checkbox" name="select_all" value="1" id="example-select-all"></th>
@@ -46,6 +46,7 @@
 <jsp:include page="/WEB-INF/views/footer.jsp" />
 <script src="${pageContext.request.contextPath}/resources/assets/js/jquery.dataTables.min.js"></script>
 <script src="${pageContext.request.contextPath}/resources/assets/js/dataTables.bootstrap4.min.js"></script>
+<script src="${pageContext.request.contextPath}/resources/assets/js/toastr.js"></script>
 
 <script>
 $(document).ready(function (){
@@ -101,6 +102,15 @@ $(document).ready(function (){
       });
 	 
    });
+   toastr.options = {
+			  "closeButton": false,
+			  "positionClass": "toast-top-center",
+			  "preventDuplicates": false,
+			  "showDuration": "300",
+			  "hideDuration": "1000",
+			  "timeOut": "5000",
+			  "extendedTimeOut": "1000"
+};	  
   });
   
 function candidateProfileSubmit(submittedto,jobpostingId,candidateId,submitType,candidateJobPostId) {
@@ -119,6 +129,9 @@ function candidateProfileSubmit(submittedto,jobpostingId,candidateId,submitType,
                         var obj=JSON.parse(result);
 						if(obj.msg == "Profile Submitted"){
 							toastr.success("Profile Submitted"); 
+						}
+						if(obj.msg == "Profile Submission failed"){
+							toastr.error("Failed"); 
 						}
 						location.reload();
 	             }

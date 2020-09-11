@@ -93,99 +93,7 @@
 			<input type="hidden" id="submitType">
 			 </div>
 			 <!-- Modal -->
-   <div class="modal" id="myModal">
-    <div class="modal-dialog modal-lg">
-	<form  id ="timesheetSubmit" onsubmit="return false">
-      <div class="modal-content">
-      
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h4 class="modal-title">Register</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        
-        <!-- Modal body -->
-        <div class="modal-body">
-         
-
-		  <div class="row">
-	<div class="col-sm-12">
-		<div class="row">
-			<div class="col-sm-6">
-					<div class="form-group">
-						<input type="hidden" id="timesheetId">
-						<label for="firstname">Firstname:</label> <input type="text"
-							class="form-control" id="firstname" name="firstname">
-					</div>
-				</div>
-			<div class="col-sm-6">
-				<div class="form-group">
-					<label for="firstname">Lastname:</label> <input type="text"
-						class="form-control" id="lastname"  name="lastname" ></input>
-						<span id="comments1" class="text-danger font-weight-bold"></span>
-				</div>
-			</div>
-		</div>
-
-	</div>
-	<div class="col-sm-12">
-		<div class="row">
-			<div class="col-sm-6">
-					<div class="form-group">
-						<label for="emailid">EmailId</label> <input
-							class="form-control"  name="emailid"  id="emailid">
-					</div>
-				</div>
-				<div class="col-sm-6">
-					<div class="form-group">
-						<label for="password">Password</label> <input type="password"
-							class="form-control" name="regpassword"  id="regpassword">
-					</div>
-			
-				</div>
-				</div>
-				</div>
-				<div class="col-sm-12">
-				<div class="row">
-			<div class="col-sm-6">
-				<div class="form-group">
-					<label for="startdate">Date of Birth</label>
-					
-						<input class="form-control" id="dateofbirth" name="date"
-							placeholder="MM/DD/YYYY" type="text"  value="03/09/1998" disabled>
-					</div>
-				</div>
-				<div class="col-sm-6">
-				<div class="form-group">
-					<label class="font-weight-bold" for="projectname">Resume Upload</label>
-								<input type="file"  class="form-control" name="file" id="file">				
-					</div>
-				</div>
-				<div class="col-sm-12">
-				<div class="row">
-			<div class="col-sm-12">
-				<div class="form-group">
-					<label for="startdate">Profile</label>
-				<textarea name="" class="form-control" id="profile" cols="30" rows="4"></textarea>
-
-					</div>
-				</div>
-			</div>
-        </div>
-        </div>
-        <!-- Modal footer -->
-        <div class="modal-footer">
-         <button type="submit" class="btn btn-success" onclick="register()">Save</button>
-        </div>
-        
-      </div>
-    </div>
-	</div>
-	</div>
-  </form>
-  </div>
-
-  </div>	
+	
 <!--Modal-->
 
  <div class="modal" id="loginModal">
@@ -219,7 +127,7 @@
 				<div class="row">
 			<div class="col-sm-6">
 				<div class="form-group">
-					<label for="password">Password:</label> <input type="text"
+					<label for="password">Password:</label> <input type="password"
 						class="form-control" id="password"  name="password" ></input>
 				</div>
 			</div>
@@ -297,7 +205,7 @@
 <script>
  $(document).ready(function(){
 	 getjobList();
-	 $('#myModal').modal('hide');
+	// $('#myModal').modal('hide');
 	   toastr.options = {
 				  "closeButton": false,
 				  "positionClass": "toast-top-center",
@@ -356,7 +264,6 @@ function setId(updatedby,jobpostingId,submitType){
 	}
 
 	function candidatelogin(){
-		debugger;
 		var username = $('#username').val();
 		var password = $('#password').val();
 		$.ajax({
@@ -370,28 +277,27 @@ function setId(updatedby,jobpostingId,submitType){
 			success: function(result) {
 				var obj=JSON.parse(result);
 				if(obj.msg == "username not found"){
-					$('#loginModal').modal('hide');
-					$('#myModal').modal('show');
+					//$('#loginModal').modal('hide');
+					//$('#myModal').modal('show');
+					window.location="register";
 				}else if(obj.msg == "login successfully"){
 					$('#loginModal').modal('hide');
-					var customerId = $('#customerId').val();
+					 var customerId = $('#customerId').val();
 					 var vendorId = $('#vendorId').val();
 					 var jobpostingId = $('#jobpostingId').val();
 					 var submitType = $('#submitType').val();
-					getstatus(customerId,vendorId,jobpostingId,submitType);
+					 getstatus(customerId,vendorId,jobpostingId,submitType);
 				}
 			}
 		});
 	}
 
 	function getstatus(customerId,vendorId,jobpostingId,submitType){
-		
 		$.ajax({
 			url:'getstatus.htm',
 			type:"POST",
 			async:false,
 			data: {
-				
 				vendorId:vendorId,
 				jobpostingId: jobpostingId,
 				submitType:submitType,
@@ -399,14 +305,14 @@ function setId(updatedby,jobpostingId,submitType){
 			},
 			success: function(result) {
 				var obj=JSON.parse(result);
-				
 				if(obj.msg == "Failed"){
-					$('#myModal').modal('show');
+					//$('#myModal').modal('show');
 				}
 				toastr.success(obj.msg);
 			}	
 		});
 	}
+	
   function register(){
     	  var firstname=$('#firstname').val();
 		  var lastname=$('#lastname').val();
@@ -423,7 +329,6 @@ function setId(updatedby,jobpostingId,submitType){
 			formData.append('dob', dob);
 			formData.append('profile', profile);
 			formData.append('password', password);
-
     	  $.ajax({
     		  url:'addcandidate.htm',
     		  type:"POST",
@@ -433,15 +338,14 @@ function setId(updatedby,jobpostingId,submitType){
     		  success:function(result){
     			  var obj=JSON.parse(result);
     			  if(obj.msg=="candidate created successfully" ){
-    				toastr.success("candidate created successfully"); 
+    				toastr.success("Registration successful"); 
     			  }
-    			  if(obj.msg=="candidatename already exists"){
-    				toastr.success("candidatename already exists");  
+    			  if(obj.msg=="name already exists"){
+    				toastr.warning("Name already exists");  
     			  }
-    			 if(obj.msg=="candidate creation failed"){
-    				 toastr.success("candidate creation failed")
-    			 }
-    			
+    			  if(obj.msg=="candidate creation failed"){
+    				 toastr.error("Candidate creation failed")
+    			  }
     		  }
     	  });
     }        

@@ -13,6 +13,7 @@ import org.json.JSONObject;
 
 import com.hiring.db.DBConnection;
 
+
 public class CustomerDao implements Customer {
 	private static Logger logger = Logger.getLogger(CustomerDao.class);
 	private static DBConnection conn = DBConnection.getInstance();
@@ -33,7 +34,7 @@ public class CustomerDao implements Customer {
 			}
 			con.close();
 			return counter;
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);}
 		finally {
 			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
@@ -42,8 +43,7 @@ public class CustomerDao implements Customer {
 		}
 		return 0;
 		}	
-	@Override
-public JSONObject insertCustomer(JSONObject json) {
+	public JSONObject insertCustomer(JSONObject json) {
 		JSONObject jsonObj = new JSONObject();
 		int customerid =isexistcustomer(json);
 		if(customerid>0) {
@@ -63,7 +63,7 @@ public JSONObject insertCustomer(JSONObject json) {
 			preparedstmt.setString(5, LocalDateTime.now().toString());
 			preparedstmt.executeUpdate();
 			jsonObj.put("msg","Cusotmer Created successfully");
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			logger.error(e);
 			jsonObj.put("msg","Customer Creation failed");
 	}
@@ -76,17 +76,14 @@ public JSONObject insertCustomer(JSONObject json) {
 		return jsonObj;
 
 }
-@Override
 public JSONObject customerList(){
 	JSONObject json = new JSONObject();
 	JSONArray jsonArr =  new JSONArray();
 	Connection con = null;
 	Statement stmt=null;
 	ResultSet rs=null;
-	//String sql = "SELECT users.userid, firstname,lastname,password,username,email,roleid,role,reportingperson FROM users  " + 
-			//"INNER JOIN role ON users.roleid=role.id;";
 	try {
-		String sql = "SELECT customerid,companyname,description from customer ";
+		String sql = "SELECT customerid,companyname,description FROM customer ";
     		con = conn.getConnection();	
 	        stmt=con.createStatement();
 			rs=stmt.executeQuery(sql);
@@ -98,7 +95,7 @@ public JSONObject customerList(){
 			jsonArr.put(cust);
 		}
 		json.put("customerList", jsonArr);
-	} catch (SQLException e) {
+	} catch (Exception e) {
 		logger.error(e);
 	}	finally {
 			 if (con != null) { try { con.close(); } catch (SQLException e){logger.error(e);}}
@@ -108,7 +105,6 @@ public JSONObject customerList(){
 		return json;
 	
 	}
-@Override
 public JSONObject updatecust(JSONObject json) {
 	String sql="UPDATE customer SET companyname=?,description=?WHERE customerid=?";
 	JSONObject jsonobj = new JSONObject();
@@ -122,7 +118,7 @@ public JSONObject updatecust(JSONObject json) {
 		preparedstmt.setInt(3,json.getInt("customerid"));
 		preparedstmt.executeUpdate();
 		jsonobj.put("msg", "user updated successfully");
-	}catch (SQLException e) {
+	}catch (Exception e) {
 		logger.error(e);
 		jsonobj.put("msg", "user updated failed");
 	}
@@ -133,7 +129,6 @@ public JSONObject updatecust(JSONObject json) {
 	return jsonobj;
 
 }
-@Override
 public JSONObject custById(String customerid) {
 	JSONObject jsonobj = new JSONObject();
 	String sql = "SELECT companyname,description FROM customer WHERE customerid=?";
@@ -149,7 +144,7 @@ public JSONObject custById(String customerid) {
 			jsonobj.put("companyname",rs.getString("companyname"));
 			jsonobj.put("description",rs.getString("description"));
 			}
-	} catch (SQLException e) {
+	} catch (Exception e) {
 		logger.error(e);
 	}
 	finally {

@@ -21,7 +21,7 @@ class CandidateInsertTest {
 		byte[] fileContent = FileUtils.readFileToByteArray(new File("D:\\Selvi.jpg"));
 		String encodedString = Base64.getEncoder().encodeToString(fileContent);
 		custs.put("resumeupload", encodedString);
-		System.out.println(cust.insertapplicant(custs));
-		System.out.println(cust.updatecandidate(custs));
+		System.out.println(cust.insertApplicant(custs));
+		System.out.println(cust.updateCandidate(custs));
 	}
 }

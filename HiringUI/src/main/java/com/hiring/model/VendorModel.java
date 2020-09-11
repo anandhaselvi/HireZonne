@@ -1,14 +1,25 @@
 package com.hiring.model;
 
 public class VendorModel {
-	public int vendorId;
-	public String vendorname;
-	public String description;
-	public String isprimary;
-	public String customer;
-	public String reportingto;
-	public String emailId;
+	private int vendorId;
+	private String vendorname;
+	private String description;
+	private String isprimary;
+	private String customer;
+	private String reportingto;
+	private String emailId;
+	private String location;
+	private String phonenumber;
+	private String status;
+	private String companydetails;
 
+	
+	public String getCompanydetails() {
+		return companydetails;
+	}
+	public void setCompanydetails(String companydetails) {
+		this.companydetails = companydetails;
+	}
 	public String getEmailId() {
 		return emailId;
 	}
@@ -50,6 +61,24 @@ public class VendorModel {
 	}
 	public void setReportingto( String reportingto) {
 		this.reportingto = reportingto;
+	}
+	public String getLocation() {
+		return location;
+	}
+	public void setLocation(String location) {
+		this.location = location;
+	}
+	public String getPhonenumber() {
+		return phonenumber;
+	}
+	public void setPhonenumber(String phonenumber) {
+		this.phonenumber = phonenumber;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	
 
